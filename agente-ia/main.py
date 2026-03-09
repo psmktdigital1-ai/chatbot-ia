@@ -79,7 +79,9 @@ TAVILY_API_KEY = st.secrets["TAVILY_API_KEY"]
 ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
 SHEET_ID       = st.secrets["SHEET_ID"]
 
-client = Groq(api_key=GROQ_API_KEY)
+import os
+os.environ["GROQ_API_KEY"] = GROQ_API_KEY
+client = Groq()
 tavily = TavilyClient(api_key=TAVILY_API_KEY)
 
 # ─── GOOGLE SHEETS ────────────────────────────────────────────────────────────
@@ -350,3 +352,4 @@ if mensagem_usuario:
     elif total_msgs > 2:
         # Atualiza total de mensagens no lead a cada turno
         st.session_state.dados_lead["total_msgs"] = total_msgs
+
