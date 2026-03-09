@@ -1,7 +1,6 @@
-streamlit
-google-generativeai
-groq
-tavily-python
-gspread
-google-auth
+streamlit==1.41.0
+groq==0.11.0
+tavily-python==0.3.3
 streamlit-autorefresh==0.0.1
+gspread==6.1.2
+google-auth==2.29.0
