@@ -1,5 +1,5 @@
 import streamlit as st
-from groq import Groq
+import requests
 from tavily import TavilyClient
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
@@ -79,9 +79,7 @@ TAVILY_API_KEY = st.secrets["TAVILY_API_KEY"]
 ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
 SHEET_ID       = st.secrets["SHEET_ID"]
 
-import os
-os.environ["GROQ_API_KEY"] = GROQ_API_KEY
-client = Groq()
+# client configurado via requests direto
 tavily = TavilyClient(api_key=TAVILY_API_KEY)
 
 # ─── GOOGLE SHEETS ────────────────────────────────────────────────────────────
@@ -325,13 +323,12 @@ if mensagem_usuario:
 
     try:
         with st.spinner("Paulo AI está pensando..."):
-            resp = client.chat.completions.create(
-                messages=mensagens_ia,
-                model="llama-3.3-70b-versatile",
-                temperature=0.5,
-                max_tokens=1024
-            )
-        resposta_ia = resp.choices[0].message.content
+            resp = requests.post(
+    "https://api.groq.com/openai/v1/chat/completions",
+    headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+    json={"model": "llama-3.3-70b-versatile", "messages": mensagens_ia, "temperature": 0.5, "max_tokens": 1024}
+)
+resposta_ia = resp.json()["choices"][0]["message"]["content"]
     except Exception as e:
         resposta_ia = f"Erro: {str(e)}"
 
@@ -352,4 +349,5 @@ if mensagem_usuario:
     elif total_msgs > 2:
         # Atualiza total de mensagens no lead a cada turno
         st.session_state.dados_lead["total_msgs"] = total_msgs
+
 
