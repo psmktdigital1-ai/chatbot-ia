@@ -4,3 +4,4 @@ groq
 tavily-python
 gspread
 google-auth
+streamlit-autorefresh==0.0.1
