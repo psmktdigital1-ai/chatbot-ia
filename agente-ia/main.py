@@ -11,10 +11,10 @@ import re
 st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered")
 st_autorefresh(interval=600000, limit=None, key="keepalive")
 
-# ─── AVATAR ───────────────────────────────────────────────────────────────────
+# ─── AVATAR ──────────────────────────────────────────────────────────────────
 AVATAR_B64 = "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiMxZTJhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGQxNTIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJib2R5LWdyYWQiIGN4PSI1MCUiIGN5PSIzMCUiIHI9IjcwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzJhM2Y1ZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxYTJhNDAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImZhY2UtZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzFlM2E1YSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZjIwMzUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InZpc29yLWdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgICBzdG9wLWNvbG9yPSIjNDBjNGZmIiBzdG9wLW9wYWNpdHk9IjAuNSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDc3YWEiIHN0b3Atb3BhY2l0eT0iMC4yIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0iZ2xvdyI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjIiIHJlc3VsdD0iYmx1ciIvPgogICAgICA8ZmVNZXJnZT48ZmVNZXJnZU5vZGUgaW49ImJsdXIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNvZnQtZ2xvdyI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjMiIHJlc3VsdD0iYmx1ciIvPgogICAgICA8ZmVNZXJnZT48ZmVNZXJnZU5vZGUgaW49ImJsdXIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTAwIiByPSIxMDAiIGZpbGw9InVybCgjYmcpIi8+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTAwIiByPSI5NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWUzYTVhIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA0IiBvcGFjaXR5PSIwLjYiLz4KICA8cGF0aCBkPSJNMzAgMjAwIFEzMiAxNTUgNTIgMTQwIFE2OCAxMzIgMTAwIDEzNCBRMTMyIDEzMiAxNDggMTQwIFExNjggMTU1IDE3MCAyMDBaIiBmaWxsPSIjMGYxZjMwIi8+CiAgPHBhdGggZD0iTTgwIDEzNCBMMTAwIDE2MCBMODQgMjAwIEwzMCAyMDAgUTMyIDE2MCA1MiAxNDBaIiBmaWxsPSIjMTYyNTM1Ii8+CiAgPHBhdGggZD0iTTEyMCAxMzQgTDEwMCAxNjAgTDExNiAyMDAgTDE3MCAyMDAgUTE2OCAxNjAgMTQ4IDE0MFoiIGZpbGw9IiMxNjI1MzUiLz4KICA8cGF0aCBkPSJNOTUgMTM0IEwxMDAgMTQyIEwxMDUgMTM0IEwxMDIgMTY1IEwxMDAgMTcwIEw5OCAxNjVaIiBmaWxsPSIjMWE2YmFhIi8+CiAgPHBhdGggZD0iTTkzIDEzNCBMMTAwIDE0NSBMMTA3IDEzNCBMMTA1IDEzNCBMMTAwIDE0MiBMOTUgMTM0WiIgZmlsbD0iI2U4ZjBmOCIvPgogIDxyZWN0IHg9Ijg4IiB5PSIxMTgiIHdpZHRoPSIyNCIgaGVpZ2h0PSIxOCIgcng9IjYiIGZpbGw9IiMxYTJmNDUiLz4KICA8cmVjdCB4PSI0OCIgeT0iNDIiIHdpZHRoPSIxMDQiIGhlaWdodD0iODIiIHJ4PSIxOCIgZmlsbD0idXJsKCNmYWNlLWdyYWQpIiBzdHJva2U9IiMyYTRhNmEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHJlY3QgeD0iNTQiIHk9IjQ4IiB3aWR0aD0iOTIiIGhlaWdodD0iNzAiIHJ4PSIxMyIgZmlsbD0iIzBmMWYzMCIgc3Ryb2tlPSIjMWUzYTU1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSIzNiIgeT0iNjIiIHdpZHRoPSIxNCIgaGVpZ2h0PSIzNiIgcng9IjUiIGZpbGw9IiMxNjI1MzUiIHN0cm9rZT0iIzJhNGE2NSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPHJlY3QgeD0iMTUwIiB5PSI2MiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjM2IiByeD0iNSIgZmlsbD0iIzE2MjUzNSIgc3Ryb2tlPSIjMmE0YTY1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8Y2lyY2xlIGN4PSI0MyIgY3k9Ijc4IiByPSI1IiBmaWxsPSIjMGYxZjJlIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxjaXJjbGUgY3g9IjQzIiBjeT0iNzgiIHI9IjIiIGZpbGw9IiMzOGJkZjgiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjE1NyIgY3k9Ijc4IiByPSI1IiBmaWxsPSIjMGYxZjJlIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxjaXJjbGUgY3g9IjE1NyIgY3k9Ijc4IiByPSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjgiLz4KICA8cmVjdCB4PSI5NyIgeT0iMjgiIHdpZHRoPSI2IiBoZWlnaHQ9IjE4IiByeD0iMyIgZmlsbD0iIzFhM2E1NSIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjI0IiByPSI3IiBmaWxsPSIjMGYxZjMwIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMjQiIHI9IjMuNSIgZmlsbD0iIzM4YmRmOCIgZmlsdGVyPSJ1cmwoI2dsb3cpIj4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9Im9wYWNpdHkiIHZhbHVlcz0iMTswLjM7MSIgZHVyPSIyLjVzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIvPgogIDwvY2lyY2xlPgogIDxyZWN0IHg9IjYwIiB5PSI2MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMTAiIGZpbGw9InVybCgjdmlzb3ItZ3JhZCkiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8ZWxsaXBzZSBjeD0iNzkiIGN5PSI3NiIgcng9IjEwIiByeT0iOCIgZmlsbD0iIzA1MTUyNSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8ZWxsaXBzZSBjeD0iNzkiIGN5PSI3NiIgcng9IjYiIHJ5PSI1IiBmaWxsPSIjMGVhNWU5IiBvcGFjaXR5PSIwLjkiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDxlbGxpcHNlIGN4PSI3OSIgY3k9Ijc2IiByeD0iMyIgcnk9IjIuNSIgZmlsbD0iIzQwZTBmZiIvPgogIDxlbGxpcHNlIGN4PSIxMjEiIGN5PSI3NiIgcng9IjEwIiByeT0iOCIgZmlsbD0iIzA1MTUyNSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8ZWxsaXBzZSBjeD0iMTIxIiBjeT0iNzYiIHJ4PSI2IiByeT0iNSIgZmlsbD0iIzBlYTVlOSIgb3BhY2l0eT0iMC45IiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KICA8ZWxsaXBzZSBjeD0iMTIxIiBjeT0iNzYiIHJ4PSIzIiByeT0iMi41IiBmaWxsPSIjNDBlMGZmIi8+CiAgPHJlY3QgeD0iNjgiIHk9Ijk4IiB3aWR0aD0iNjQiIGhlaWdodD0iMTgiIHJ4PSI2IiBmaWxsPSIjMGExODI1IiBzdHJva2U9IiMxZTNhNTUiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxyZWN0IHg9IjczIiB5PSIxMDMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHJ4PSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjg1IiBmaWx0ZXI9InVybCgjZ2xvdykiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0ib3BhY2l0eSIgdmFsdWVzPSIwLjg1OzAuMzswLjg1IiBkdXI9IjEuOHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9yZWN0PgogIDxyZWN0IHg9Ijg1IiB5PSIxMDMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHJ4PSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjYiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0ib3BhY2l0eSIgdmFsdWVzPSIwLjY7MTswLjYiIGR1cj0iMS4ycyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICA8L3JlY3Q+CiAgPHJlY3QgeD0iOTciIHk9IjEwMyIgd2lkdGg9IjgiIGhlaWdodD0iOCIgcng9IjIiIGZpbGw9IiMzOGJkZjgiIG9wYWNpdHk9IjEiIGZpbHRlcj0idXJsKCNnbG93KSI+CiAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJvcGFjaXR5IiB2YWx1ZXM9IjE7MC40OzEiIGR1cj0iMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9yZWN0PgogIDxyZWN0IHg9IjEwOSIgeT0iMTAzIiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiByeD0iMiIgZmlsbD0iIzM4YmRmOCIgb3BhY2l0eT0iMC41Ij4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9Im9wYWNpdHkiIHZhbHVlcz0iMC41OzAuOTswLjUiIGR1cj0iMS41cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICA8L3JlY3Q+CiAgPHJlY3QgeD0iMTIxIiB5PSIxMDMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHJ4PSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjc1IiBmaWx0ZXI9InVybCgjZ2xvdykiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0ib3BhY2l0eSIgdmFsdWVzPSIwLjc1OzAuMjswLjc1IiBkdXI9IjIuMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9yZWN0Pgo8L3N2Zz4="
 
-# ─── CSS ──────────────────────────────────────────────────────────────────────
+# ─── CSS ─────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
@@ -53,13 +53,10 @@ html, body, [data-testid="stAppViewContainer"] {{
 [data-testid="stSpinner"] > div {{ color: #777 !important; font-size: 0.95rem !important; }}
 ::-webkit-scrollbar {{ width: 4px; }}
 ::-webkit-scrollbar-thumb {{ background: #333; border-radius: 999px; }}
-
-/* Dashboard styles */
 .dash-metric {{ background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.2rem 1.5rem; text-align: center; }}
 .dash-metric-val {{ font-size: 2.5rem; font-weight: 700; color: #0ea5e9; font-family: 'Instrument Serif', serif; }}
 .dash-metric-label {{ font-size: 0.85rem; color: #777; margin-top: 0.3rem; }}
 .lead-card {{ background: #1a1a1a; border: 1px solid #252525; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }}
-.lead-card:hover {{ border-color: #0ea5e9; }}
 .lead-nicho {{ display: inline-block; background: #0ea5e920; color: #38bdf8; border-radius: 6px; padding: 2px 10px; font-size: 0.78rem; font-weight: 600; }}
 .lead-time {{ font-size: 0.78rem; color: #555; }}
 </style>
@@ -81,6 +78,27 @@ SHEET_ID       = st.secrets["SHEET_ID"]
 
 tavily = TavilyClient(api_key=TAVILY_API_KEY)
 
+# ─── CHAMADA GROQ via requests ────────────────────────────────────────────────
+def chamar_groq(mensagens, temperature=0.5, max_tokens=1024):
+    try:
+        resp = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama-3.3-70b-versatile",
+                "messages": mensagens,
+                "temperature": temperature,
+                "max_tokens": max_tokens
+            },
+            timeout=30
+        )
+        return resp.json()["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"Erro ao chamar IA: {str(e)}"
+
 # ─── GOOGLE SHEETS ────────────────────────────────────────────────────────────
 @st.cache_resource
 def get_sheet():
@@ -91,7 +109,6 @@ def get_sheet():
         gc     = gspread.authorize(creds)
         sh     = gc.open_by_key(SHEET_ID)
         ws     = sh.sheet1
-        # Garante cabeçalho
         if ws.row_count == 0 or ws.cell(1, 1).value != "Data/Hora":
             ws.insert_row(["Data/Hora","Sessão ID","Nicho Detectado","Cidade/Estado","Intenção","Primeira Pergunta","Total Mensagens"], 1)
         return ws
@@ -120,75 +137,52 @@ def carregar_leads():
     if not ws:
         return []
     try:
-        rows = ws.get_all_records()
-        return rows
+        return ws.get_all_records()
     except Exception:
         return []
 
-# ─── EXTRAÇÃO INTELIGENTE COM IA ──────────────────────────────────────────────
+# ─── EXTRAÇÃO INTELIGENTE ─────────────────────────────────────────────────────
 def extrair_dados_conversa(mensagens: list) -> dict:
-    """Usa a IA para extrair nicho, cidade/estado e intenção da conversa."""
     if not mensagens:
         return {}
     conversa_txt = "\n".join([f"{m['role'].upper()}: {m['content'][:300]}" for m in mensagens[:6]])
     prompt = f"""Analise essa conversa e extraia em JSON:
 - nicho: setor do negócio do usuário (ex: Clínica/Saúde, Advocacia, Contabilidade, E-commerce, Restaurante, Outro)
 - cidade_estado: cidade e estado mencionados (ex: São Paulo SP) ou "Não informado"
-- intencao: o que o usuário quer em 1 linha curta (ex: "Quer chatbot para clínica", "Consultoria em automação")
+- intencao: o que o usuário quer em 1 linha curta
 
 Conversa:
 {conversa_txt}
 
-Responda APENAS o JSON, sem explicação. Exemplo:
-{{"nicho":"Clínica/Saúde","cidade_estado":"Belo Horizonte MG","intencao":"Quer automatizar atendimento"}}"""
+Responda APENAS o JSON. Exemplo:
+{{"nicho":"Clínica/Saúde","cidade_estado":"São Paulo SP","intencao":"Quer chatbot para clínica"}}"""
     try:
-        resp = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {GROQ_API_KEY}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "llama-3.3-70b-versatile",
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0,
-                "max_tokens": 150
-            },
-            timeout=15
-        )
-        raw = resp.json()["choices"][0]["message"]["content"].strip()
+        raw = chamar_groq([{"role": "user", "content": prompt}], temperature=0, max_tokens=150)
         raw = re.sub(r"```json|```", "", raw).strip()
         return json.loads(raw)
     except Exception:
         return {}
 
 # ─── SESSION STATE ────────────────────────────────────────────────────────────
-if "lista_mensagens" not in st.session_state:
-    st.session_state.lista_mensagens = []
-if "historico_ia" not in st.session_state:
-    st.session_state.historico_ia = []
-if "session_id" not in st.session_state:
-    st.session_state.session_id = datetime.now().strftime("%Y%m%d%H%M%S")
-if "lead_salvo" not in st.session_state:
-    st.session_state.lead_salvo = False
-if "dados_lead" not in st.session_state:
-    st.session_state.dados_lead = {}
-if "pagina" not in st.session_state:
-    st.session_state.pagina = "chat"
-if "admin_ok" not in st.session_state:
-    st.session_state.admin_ok = False
+defaults = {
+    "lista_mensagens": [],
+    "historico_ia": [],
+    "session_id": datetime.now().strftime("%Y%m%d%H%M%S"),
+    "lead_salvo": False,
+    "dados_lead": {},
+    "admin_ok": False,
+}
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 # ─── ROTEAMENTO ───────────────────────────────────────────────────────────────
-params = st.query_params
-if params.get("admin") == "1" or st.session_state.pagina == "admin":
-    st.session_state.pagina = "admin"
-else:
-    st.session_state.pagina = "chat"
+is_admin = st.query_params.get("admin") == "1"
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PÁGINA: DASHBOARD ADMIN
+# DASHBOARD ADMIN
 # ══════════════════════════════════════════════════════════════════════════════
-if st.session_state.pagina == "admin":
+if is_admin:
     st.markdown("## 🤖 Paulo AI — Painel Admin")
 
     if not st.session_state.admin_ok:
@@ -201,11 +195,8 @@ if st.session_state.pagina == "admin":
                 st.error("Senha incorreta.")
         st.stop()
 
-    # ── Admin autenticado ──
     st.markdown("---")
     leads = carregar_leads()
-
-    # Métricas
     total     = len(leads)
     nichos    = [l.get("Nicho Detectado","") for l in leads if l.get("Nicho Detectado","") not in ("","Não identificado")]
     cidades   = [l.get("Cidade/Estado","") for l in leads if l.get("Cidade/Estado","") not in ("","Não informado")]
@@ -213,69 +204,63 @@ if st.session_state.pagina == "admin":
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{total}</div><div class="dash-metric-label">Total de conversas</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{total}</div><div class="dash-metric-label">Total conversas</div></div>', unsafe_allow_html=True)
     with c2:
-        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{len(nichos)}</div><div class="dash-metric-label">Nichos identificados</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{len(nichos)}</div><div class="dash-metric-label">Nichos</div></div>', unsafe_allow_html=True)
     with c3:
-        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{len(cidades)}</div><div class="dash-metric-label">Cidades capturadas</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{len(cidades)}</div><div class="dash-metric-label">Cidades</div></div>', unsafe_allow_html=True)
     with c4:
-        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val" style="font-size:1.2rem">{nicho_top}</div><div class="dash-metric-label">Nicho mais frequente</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val" style="font-size:1.1rem">{nicho_top}</div><div class="dash-metric-label">Nicho top</div></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Filtros
     col_f1, col_f2 = st.columns(2)
     with col_f1:
-        opcoes_nicho = ["Todos"] + sorted(set(l.get("Nicho Detectado","") for l in leads if l.get("Nicho Detectado","")))
-        filtro_nicho = st.selectbox("Filtrar por nicho:", opcoes_nicho)
+        opcoes = ["Todos"] + sorted(set(l.get("Nicho Detectado","") for l in leads if l.get("Nicho Detectado","")))
+        filtro_nicho = st.selectbox("Filtrar por nicho:", opcoes)
     with col_f2:
-        filtro_busca = st.text_input("Buscar por intenção ou cidade:", placeholder="Ex: chatbot, São Paulo...")
+        filtro_busca = st.text_input("Buscar:", placeholder="Ex: chatbot, São Paulo...")
 
-    leads_filtrados = leads
+    leads_f = leads
     if filtro_nicho != "Todos":
-        leads_filtrados = [l for l in leads_filtrados if l.get("Nicho Detectado","") == filtro_nicho]
+        leads_f = [l for l in leads_f if l.get("Nicho Detectado","") == filtro_nicho]
     if filtro_busca:
-        termo = filtro_busca.lower()
-        leads_filtrados = [l for l in leads_filtrados if
-            termo in str(l.get("Intenção","")).lower() or
-            termo in str(l.get("Cidade/Estado","")).lower() or
-            termo in str(l.get("Primeira Pergunta","")).lower()]
+        t = filtro_busca.lower()
+        leads_f = [l for l in leads_f if t in str(l.get("Intenção","")).lower() or
+                   t in str(l.get("Cidade/Estado","")).lower() or
+                   t in str(l.get("Primeira Pergunta","")).lower()]
 
-    st.markdown(f"**{len(leads_filtrados)} conversa(s) encontrada(s)**")
+    st.markdown(f"**{len(leads_f)} conversa(s) encontrada(s)**")
     st.markdown("---")
 
-    # Tabela de leads
-    if not leads_filtrados:
-        st.info("Nenhuma conversa encontrada ainda.")
+    if not leads_f:
+        st.info("Nenhuma conversa ainda.")
     else:
-        for lead in reversed(leads_filtrados):
-            nicho   = lead.get("Nicho Detectado", "—")
-            cidade  = lead.get("Cidade/Estado", "—")
+        for lead in reversed(leads_f):
+            nicho    = lead.get("Nicho Detectado", "—")
+            cidade   = lead.get("Cidade/Estado", "—")
             intencao = lead.get("Intenção", "—")
-            dt      = lead.get("Data/Hora", "—")
-            perg    = lead.get("Primeira Pergunta", "")[:80]
-            msgs    = lead.get("Total Mensagens", "—")
-            st.markdown(f"""
-            <div class="lead-card">
+            dt       = lead.get("Data/Hora", "—")
+            perg     = str(lead.get("Primeira Pergunta", ""))[:80]
+            msgs     = lead.get("Total Mensagens", "—")
+            st.markdown(f"""<div class="lead-card">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                 <span class="lead-nicho">{nicho}</span>
-                <span class="lead-time">{dt} &nbsp;·&nbsp; {msgs} msgs</span>
+                <span class="lead-time">{dt} · {msgs} msgs</span>
               </div>
               <div style="color:#d4d0cb;font-size:0.95rem;margin-bottom:4px"><b>Intenção:</b> {intencao}</div>
-              <div style="color:#888;font-size:0.88rem"><b>Cidade:</b> {cidade} &nbsp;·&nbsp; <b>Pergunta:</b> "{perg}..."</div>
+              <div style="color:#888;font-size:0.88rem"><b>Cidade:</b> {cidade} · <b>Pergunta:</b> "{perg}..."</div>
             </div>""", unsafe_allow_html=True)
 
     st.markdown("---")
     if st.button("🚪 Sair do painel"):
         st.session_state.admin_ok = False
-        st.session_state.pagina = "chat"
         st.query_params.clear()
         st.rerun()
-
     st.stop()
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PÁGINA: CHAT
+# CHAT
 # ══════════════════════════════════════════════════════════════════════════════
 for msg in st.session_state.lista_mensagens:
     st.chat_message(msg["role"]).write(msg["content"])
@@ -292,13 +277,13 @@ def buscar_internet(pergunta):
 
 def precisa_buscar(pergunta):
     sem_busca = ["como se escreve", "o que significa", "defina", "qual a fórmula",
-                 "me conta uma piada", "escreva um poema", "traduza", "corrija"]
+                 "me conta uma piada", "escreva um poema", "traduza", "corrija",
+                 "oi", "olá", "ola", "tudo bem", "bom dia", "boa tarde", "boa noite"]
     return not any(p in pergunta.lower() for p in sem_busca)
 
 mensagem_usuario = st.chat_input("Digite sua mensagem...")
 
 if mensagem_usuario:
-    # Salva primeira pergunta
     if not st.session_state.lista_mensagens:
         st.session_state.dados_lead["primeira_pergunta"] = mensagem_usuario
         st.session_state.dados_lead["datetime"] = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -316,11 +301,11 @@ if mensagem_usuario:
                 contexto_busca = f"[CONTEXTO DA INTERNET - {data_hoje}]\nUse como fonte principal:\n{resultado}\n[FIM]"
 
     system_prompt = (
-        f"Você é Paulo AI, assistente inteligente com acesso à internet em tempo real.\n"
-        f"1. Use [CONTEXTO DA INTERNET] como fonte principal quando disponível.\n"
-        f"2. Cite as fontes.\n"
-        f"3. Seja claro e útil.\n"
-        f"4. Responda em português brasileiro.\n"
+        f"Você é Paulo AI, assistente inteligente e conversacional com acesso à internet em tempo real.\n"
+        f"REGRAS:\n"
+        f"1. Se alguém disser 'oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'tudo bem' ou cumprimentos, responda de forma amigável e natural — NUNCA interprete como sigla.\n"
+        f"2. Use [CONTEXTO DA INTERNET] como fonte principal quando disponível, citando as fontes.\n"
+        f"3. Responda sempre em português brasileiro de forma clara e útil.\n"
         f"Hoje: {datetime.now().strftime('%d/%m/%Y')}"
     )
 
@@ -328,40 +313,18 @@ if mensagem_usuario:
     st.session_state.historico_ia.append({"role": "user", "content": conteudo_atual})
     mensagens_ia = [{"role": "system", "content": system_prompt}] + st.session_state.historico_ia
 
-    try:
-        with st.spinner("Paulo AI está pensando..."):
-            resp = requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {GROQ_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "llama-3.3-70b-versatile",
-                    "messages": mensagens_ia,
-                    "temperature": 0.5,
-                    "max_tokens": 1024
-                },
-                timeout=30
-            )
-            resposta_ia = resp.json()["choices"][0]["message"]["content"]
-    except Exception as e:
-        resposta_ia = f"Erro: {str(e)}"
+    with st.spinner("Paulo AI está pensando..."):
+        resposta_ia = chamar_groq(mensagens_ia)
 
     st.chat_message("assistant").write(resposta_ia)
     st.session_state.lista_mensagens.append({"role": "assistant", "content": resposta_ia})
     st.session_state.historico_ia.append({"role": "assistant", "content": resposta_ia})
 
-    # ── Captura de lead: extrai dados após 2ª mensagem e salva ──
     total_msgs = len(st.session_state.lista_mensagens)
     st.session_state.dados_lead["total_msgs"] = total_msgs
 
     if total_msgs >= 2 and not st.session_state.lead_salvo:
-        with st.spinner(""):
-            dados_extraidos = extrair_dados_conversa(st.session_state.lista_mensagens)
-            st.session_state.dados_lead.update(dados_extraidos)
-            salvar_lead(st.session_state.dados_lead)
-            st.session_state.lead_salvo = True
-    elif total_msgs > 2:
-        # Atualiza total de mensagens no lead a cada turno
-        st.session_state.dados_lead["total_msgs"] = total_msgs
+        dados_extraidos = extrair_dados_conversa(st.session_state.lista_mensagens)
+        st.session_state.dados_lead.update(dados_extraidos)
+        salvar_lead(st.session_state.dados_lead)
+        st.session_state.lead_salvo = True
