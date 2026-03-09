@@ -1,453 +1,352 @@
 import streamlit as st
-import google.generativeai as genai
 from groq import Groq
 from tavily import TavilyClient
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
-
-import os
-import json
 import gspread
 from google.oauth2.service_account import Credentials
+import json
+import re
 
 st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered")
-
 st_autorefresh(interval=600000, limit=None, key="keepalive")
 
-AVATAR_B64 = "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiMxZTJhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGQxNTIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjEwMCIgZmlsbD0idXJsKCNiZykiLz4KICA8cmVjdCB4PSI0OCIgeT0iNDIiIHdpZHRoPSIxMDQiIGhlaWdodD0iODIiIHJ4PSIxOCIgZmlsbD0iIzBmMWYzMCIgc3Ryb2tlPSIjMmE0YTZhIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxyZWN0IHg9IjYwIiB5PSI2MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMTAiIGZpbGw9InJnYmEoNTYsODksMjQ4LDAuMTUpIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGVsbGlwc2UgY3g9Ijc5IiBjeT0iNzYiIHJ4PSI4IiByeT0iNiIgZmlsbD0iIzBlYTVlOSIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjEyMSIgY3k9Ijc2IiByeD0iOCIgcnk9IjYiIGZpbGw9IiMwZWE1ZTkiIG9wYWNpdHk9IjAuOSIvPgogIDxyZWN0IHg9IjY4IiB5PSI5OCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjE2IiByeD0iNSIgZmlsbD0iIzBhMTgyNSIgc3Ryb2tlPSIjMWUzYTU1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSI5NyIgeT0iMTAzIiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iIzM4YmRmOCIvPgogIDxwYXRoIGQ9Ik0zMCAyMDAgUTMyIDE1NSA1MiAxNDAgUTY4IDEzMiAxMDAgMTM0IFExMzIgMTMyIDE0OCAxNDAgUTE2OCAxNTUgMTcwIDIwMFoiIGZpbGw9IiMwZjFmMzAiLz4KPC9zdmc+"
+# ─── AVATAR ───────────────────────────────────────────────────────────────────
+AVATAR_B64 = "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiMxZTJhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGQxNTIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJib2R5LWdyYWQiIGN4PSI1MCUiIGN5PSIzMCUiIHI9IjcwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzJhM2Y1ZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxYTJhNDAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImZhY2UtZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzFlM2E1YSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZjIwMzUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InZpc29yLWdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgICBzdG9wLWNvbG9yPSIjNDBjNGZmIiBzdG9wLW9wYWNpdHk9IjAuNSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDc3YWEiIHN0b3Atb3BhY2l0eT0iMC4yIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0iZ2xvdyI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjIiIHJlc3VsdD0iYmx1ciIvPgogICAgICA8ZmVNZXJnZT48ZmVNZXJnZU5vZGUgaW49ImJsdXIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9InNvZnQtZ2xvdyI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjMiIHJlc3VsdD0iYmx1ciIvPgogICAgICA8ZmVNZXJnZT48ZmVNZXJnZU5vZGUgaW49ImJsdXIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTAwIiByPSIxMDAiIGZpbGw9InVybCgjYmcpIi8+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTAwIiByPSI5NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWUzYTVhIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA0IiBvcGFjaXR5PSIwLjYiLz4KICA8cGF0aCBkPSJNMzAgMjAwIFEzMiAxNTUgNTIgMTQwIFE2OCAxMzIgMTAwIDEzNCBRMTMyIDEzMiAxNDggMTQwIFExNjggMTU1IDE3MCAyMDBaIiBmaWxsPSIjMGYxZjMwIi8+CiAgPHBhdGggZD0iTTgwIDEzNCBMMTAwIDE2MCBMODQgMjAwIEwzMCAyMDAgUTMyIDE2MCA1MiAxNDBaIiBmaWxsPSIjMTYyNTM1Ii8+CiAgPHBhdGggZD0iTTEyMCAxMzQgTDEwMCAxNjAgTDExNiAyMDAgTDE3MCAyMDAgUTE2OCAxNjAgMTQ4IDE0MFoiIGZpbGw9IiMxNjI1MzUiLz4KICA8cGF0aCBkPSJNOTUgMTM0IEwxMDAgMTQyIEwxMDUgMTM0IEwxMDIgMTY1IEwxMDAgMTcwIEw5OCAxNjVaIiBmaWxsPSIjMWE2YmFhIi8+CiAgPHBhdGggZD0iTTkzIDEzNCBMMTAwIDE0NSBMMTA3IDEzNCBMMTA1IDEzNCBMMTAwIDE0MiBMOTUgMTM0WiIgZmlsbD0iI2U4ZjBmOCIvPgogIDxyZWN0IHg9Ijg4IiB5PSIxMTgiIHdpZHRoPSIyNCIgaGVpZ2h0PSIxOCIgcng9IjYiIGZpbGw9IiMxYTJmNDUiLz4KICA8cmVjdCB4PSI0OCIgeT0iNDIiIHdpZHRoPSIxMDQiIGhlaWdodD0iODIiIHJ4PSIxOCIgZmlsbD0idXJsKCNmYWNlLWdyYWQpIiBzdHJva2U9IiMyYTRhNmEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHJlY3QgeD0iNTQiIHk9IjQ4IiB3aWR0aD0iOTIiIGhlaWdodD0iNzAiIHJ4PSIxMyIgZmlsbD0iIzBmMWYzMCIgc3Ryb2tlPSIjMWUzYTU1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSIzNiIgeT0iNjIiIHdpZHRoPSIxNCIgaGVpZ2h0PSIzNiIgcng9IjUiIGZpbGw9IiMxNjI1MzUiIHN0cm9rZT0iIzJhNGE2NSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPHJlY3QgeD0iMTUwIiB5PSI2MiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjM2IiByeD0iNSIgZmlsbD0iIzE2MjUzNSIgc3Ryb2tlPSIjMmE0YTY1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8Y2lyY2xlIGN4PSI0MyIgY3k9Ijc4IiByPSI1IiBmaWxsPSIjMGYxZjJlIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxjaXJjbGUgY3g9IjQzIiBjeT0iNzgiIHI9IjIiIGZpbGw9IiMzOGJkZjgiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjE1NyIgY3k9Ijc4IiByPSI1IiBmaWxsPSIjMGYxZjJlIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxjaXJjbGUgY3g9IjE1NyIgY3k9Ijc4IiByPSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjgiLz4KICA8cmVjdCB4PSI5NyIgeT0iMjgiIHdpZHRoPSI2IiBoZWlnaHQ9IjE4IiByeD0iMyIgZmlsbD0iIzFhM2E1NSIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjI0IiByPSI3IiBmaWxsPSIjMGYxZjMwIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMjQiIHI9IjMuNSIgZmlsbD0iIzM4YmRmOCIgZmlsdGVyPSJ1cmwoI2dsb3cpIj4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9Im9wYWNpdHkiIHZhbHVlcz0iMTswLjM7MSIgZHVyPSIyLjVzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIvPgogIDwvY2lyY2xlPgogIDxyZWN0IHg9IjYwIiB5PSI2MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMTAiIGZpbGw9InVybCgjdmlzb3ItZ3JhZCkiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8ZWxsaXBzZSBjeD0iNzkiIGN5PSI3NiIgcng9IjEwIiByeT0iOCIgZmlsbD0iIzA1MTUyNSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8ZWxsaXBzZSBjeD0iNzkiIGN5PSI3NiIgcng9IjYiIHJ5PSI1IiBmaWxsPSIjMGVhNWU5IiBvcGFjaXR5PSIwLjkiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDxlbGxpcHNlIGN4PSI3OSIgY3k9Ijc2IiByeD0iMyIgcnk9IjIuNSIgZmlsbD0iIzQwZTBmZiIvPgogIDxlbGxpcHNlIGN4PSIxMjEiIGN5PSI3NiIgcng9IjEwIiByeT0iOCIgZmlsbD0iIzA1MTUyNSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8ZWxsaXBzZSBjeD0iMTIxIiBjeT0iNzYiIHJ4PSI2IiByeT0iNSIgZmlsbD0iIzBlYTVlOSIgb3BhY2l0eT0iMC45IiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KICA8ZWxsaXBzZSBjeD0iMTIxIiBjeT0iNzYiIHJ4PSIzIiByeT0iMi41IiBmaWxsPSIjNDBlMGZmIi8+CiAgPHJlY3QgeD0iNjgiIHk9Ijk4IiB3aWR0aD0iNjQiIGhlaWdodD0iMTgiIHJ4PSI2IiBmaWxsPSIjMGExODI1IiBzdHJva2U9IiMxZTNhNTUiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxyZWN0IHg9IjczIiB5PSIxMDMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHJ4PSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjg1IiBmaWx0ZXI9InVybCgjZ2xvdykiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0ib3BhY2l0eSIgdmFsdWVzPSIwLjg1OzAuMzswLjg1IiBkdXI9IjEuOHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9yZWN0PgogIDxyZWN0IHg9Ijg1IiB5PSIxMDMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHJ4PSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjYiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0ib3BhY2l0eSIgdmFsdWVzPSIwLjY7MTswLjYiIGR1cj0iMS4ycyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICA8L3JlY3Q+CiAgPHJlY3QgeD0iOTciIHk9IjEwMyIgd2lkdGg9IjgiIGhlaWdodD0iOCIgcng9IjIiIGZpbGw9IiMzOGJkZjgiIG9wYWNpdHk9IjEiIGZpbHRlcj0idXJsKCNnbG93KSI+CiAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJvcGFjaXR5IiB2YWx1ZXM9IjE7MC40OzEiIGR1cj0iMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9yZWN0PgogIDxyZWN0IHg9IjEwOSIgeT0iMTAzIiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiByeD0iMiIgZmlsbD0iIzM4YmRmOCIgb3BhY2l0eT0iMC41Ij4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9Im9wYWNpdHkiIHZhbHVlcz0iMC41OzAuOTswLjUiIGR1cj0iMS41cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICA8L3JlY3Q+CiAgPHJlY3QgeD0iMTIxIiB5PSIxMDMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHJ4PSIyIiBmaWxsPSIjMzhiZGY4IiBvcGFjaXR5PSIwLjc1IiBmaWx0ZXI9InVybCgjZ2xvdykiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0ib3BhY2l0eSIgdmFsdWVzPSIwLjc1OzAuMjswLjc1IiBkdXI9IjIuMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9yZWN0Pgo8L3N2Zz4="
 
+# ─── CSS ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
-*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
-html,body,[data-testid="stAppViewContainer"]{{background:#141414!important;font-family:'Inter',sans-serif;color:#ffffff}}
-[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none!important}}
-.block-container{{padding:0 1.5rem 5rem!important;max-width:740px!important}}
-.header{{padding:3.5rem 0 2rem;display:flex;flex-direction:column;align-items:center}}
-.avatar-circle{{width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid #1e3a55;margin-bottom:1.2rem;box-shadow:0 0 0 4px rgba(56,189,248,0.08),0 8px 36px rgba(0,0,0,0.65)}}
-.avatar-circle img{{width:100%;height:100%;object-fit:cover;display:block}}
-.header-name{{font-family:'Instrument Serif',serif;font-size:2.8rem;font-weight:400;color:#ffffff;letter-spacing:-0.025em;line-height:1;margin-bottom:0.5rem}}
-.header-desc{{font-size:1rem;color:#d0cdc8;text-align:center}}
-.engine-badge{{display:inline-flex;align-items:center;gap:6px;margin-top:0.6rem;font-size:0.72rem;padding:3px 12px;border-radius:100px;letter-spacing:0.05em;font-family:monospace}}
-.engine-gemini{{color:#4285f4;background:rgba(66,133,244,0.1);border:1px solid rgba(66,133,244,0.2)}}
-.engine-groq{{color:#f97316;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2)}}
-.nicho-badge{{display:inline-flex;align-items:center;gap:6px;margin-top:0.5rem;font-size:0.78rem;color:#38bdf8;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);padding:4px 12px;border-radius:100px;letter-spacing:0.05em}}
-.online{{display:inline-flex;align-items:center;gap:6px;margin-top:0.6rem;font-size:0.85rem;color:#aaa}}
-.online-dot{{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,0.5)}}
-.sep{{width:36px;height:1px;background:#2e2e2e;margin:1.8rem auto 1.5rem}}
-[data-testid="stChatMessage"]{{background:transparent!important;border:none!important;padding:0.2rem 0!important}}[data-testid="stChatMessage"] p,[data-testid="stChatMessage"] li,[data-testid="stChatMessage"] span{{color:#ffffff!important}}[data-testid="stChatMessage"] a{{color:#38bdf8!important}}
-[data-testid="stChatInput"]{{background:#ffffff!important;border:1px solid #dddddd!important;border-radius:14px!important}}
-[data-testid="stChatInput"] textarea{{color:#111111!important;font-size:1.05rem!important}}[data-testid="stChatInput"] textarea::placeholder{{color:#888!important}}
-[data-testid="stChatInputSubmitButton"] button{{background:#0ea5e9!important;border-radius:9px!important;border:none!important}}
-::-webkit-scrollbar{{width:4px}}::-webkit-scrollbar-thumb{{background:#333;border-radius:999px}}
+*, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+html, body, [data-testid="stAppViewContainer"] {{
+    background: #141414 !important;
+    font-family: 'Inter', sans-serif;
+    color: #f0ede8;
+}}
+[data-testid="stHeader"], [data-testid="stToolbar"], [data-testid="stDecoration"] {{ display: none !important; }}
+.block-container {{ padding: 0 1.5rem 5rem !important; max-width: 740px !important; }}
+.header {{ padding: 3.5rem 0 2rem; display: flex; flex-direction: column; align-items: center; }}
+.avatar-circle {{
+    width: 140px; height: 140px; border-radius: 50%; overflow: hidden;
+    border: 2px solid #1e3a55; margin-bottom: 1.5rem;
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.08), 0 8px 36px rgba(0,0,0,0.65);
+}}
+.avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
+.header-name {{ font-family: 'Instrument Serif', serif; font-size: 3rem; font-weight: 400; color: #f0ede8; letter-spacing: -0.025em; line-height: 1; margin-bottom: 0.6rem; }}
+.header-desc {{ font-size: 1.1rem; color: #b0a898; font-weight: 400; text-align: center; }}
+.online {{ display: inline-flex; align-items: center; gap: 6px; margin-top: 0.9rem; font-size: 0.9rem; color: #777; }}
+.online-dot {{ width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }}
+.sep {{ width: 36px; height: 1px; background: #2e2e2e; margin: 2rem auto 1.8rem; }}
+[data-testid="stChatMessage"] {{ background: transparent !important; border: none !important; padding: 0.2rem 0 !important; }}
+[data-testid="stChatMessageContent"] {{
+    background: #1e1e1e !important; border: 1px solid #2a2a2a !important;
+    border-radius: 14px !important; padding: 1rem 1.25rem !important;
+    font-size: 1.05rem !important; line-height: 1.75 !important;
+    color: #d4d0cb !important; box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}}
+[data-testid="stChatInputContainer"] {{ background: #141414 !important; border-top: 1px solid #222 !important; padding: 1rem 1.5rem !important; }}
+[data-testid="stChatInput"] {{ background: #1e1e1e !important; border: 1px solid #2e2e2e !important; border-radius: 12px !important; color: #f0ede8 !important; font-size: 1.05rem !important; }}
+[data-testid="stChatInput"]::placeholder {{ color: #555 !important; }}
+[data-testid="stChatInputSubmitButton"] button {{ background: #0ea5e9 !important; border-radius: 9px !important; border: none !important; }}
+[data-testid="stChatInputSubmitButton"] button:hover {{ opacity: 0.8 !important; }}
+[data-testid="stSpinner"] > div {{ color: #777 !important; font-size: 0.95rem !important; }}
+::-webkit-scrollbar {{ width: 4px; }}
+::-webkit-scrollbar-thumb {{ background: #333; border-radius: 999px; }}
+
+/* Dashboard styles */
+.dash-metric {{ background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.2rem 1.5rem; text-align: center; }}
+.dash-metric-val {{ font-size: 2.5rem; font-weight: 700; color: #0ea5e9; font-family: 'Instrument Serif', serif; }}
+.dash-metric-label {{ font-size: 0.85rem; color: #777; margin-top: 0.3rem; }}
+.lead-card {{ background: #1a1a1a; border: 1px solid #252525; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }}
+.lead-card:hover {{ border-color: #0ea5e9; }}
+.lead-nicho {{ display: inline-block; background: #0ea5e920; color: #38bdf8; border-radius: 6px; padding: 2px 10px; font-size: 0.78rem; font-weight: 600; }}
+.lead-time {{ font-size: 0.78rem; color: #555; }}
 </style>
+
 <div class="header">
   <div class="avatar-circle"><img src="{AVATAR_B64}" alt="Paulo AI"/></div>
   <div class="header-name">Paulo AI</div>
-  <div class="header-desc">Assistente inteligente com acesso à internet em tempo real</div>
-  <div class="online"><span class="online-dot"></span> disponível agora</div>
+  <div class="header-desc">Assistente com acesso à internet em tempo real</div>
+  <div class="online"><span class="online-dot"></span>disponível agora</div>
 </div>
 <div class="sep"></div>
 """, unsafe_allow_html=True)
 
-# ── API KEYS (Streamlit Secrets ou variáveis de ambiente) ────
-GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY", ""))
-GROQ_API_KEY   = st.secrets.get("GROQ_API_KEY",   os.getenv("GROQ_API_KEY",   ""))
-TAVILY_API_KEY = st.secrets.get("TAVILY_API_KEY",  os.getenv("TAVILY_API_KEY", ""))
+# ─── CREDENCIAIS ──────────────────────────────────────────────────────────────
+GROQ_API_KEY   = st.secrets["GROQ_API_KEY"]
+TAVILY_API_KEY = st.secrets["TAVILY_API_KEY"]
+ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
+SHEET_ID       = st.secrets["SHEET_ID"]
 
-if not TAVILY_API_KEY:
-    st.error("⚠️ Configure TAVILY_API_KEY em .streamlit/secrets.toml")
-    st.stop()
+client = Groq(api_key=GROQ_API_KEY)
+tavily = TavilyClient(api_key=TAVILY_API_KEY)
 
-if not GEMINI_API_KEY and not GROQ_API_KEY:
-    st.error("⚠️ Configure ao menos GEMINI_API_KEY ou GROQ_API_KEY em .streamlit/secrets.toml")
-    st.stop()
-
-# ── CAPTURA DE LEADS ────────────────────────────────────────
-def conectar_sheets():
-    """Conecta ao Google Sheets via service account"""
+# ─── GOOGLE SHEETS ────────────────────────────────────────────────────────────
+@st.cache_resource
+def get_sheet():
     try:
-        creds_json = st.secrets.get("GOOGLE_CREDS", "")
-        if not creds_json:
-            return None
-        creds_dict = json.loads(creds_json)
+        creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
         scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc = gspread.authorize(creds)
-        return gc
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEET_ID)
+        ws     = sh.sheet1
+        # Garante cabeçalho
+        if ws.row_count == 0 or ws.cell(1, 1).value != "Data/Hora":
+            ws.insert_row(["Data/Hora","Sessão ID","Nicho Detectado","Cidade/Estado","Intenção","Primeira Pergunta","Total Mensagens"], 1)
+        return ws
     except Exception:
         return None
 
-def registrar_lead(nicho, primeira_mensagem, resposta_ia):
-    """Registra lead na planilha Google Sheets"""
+def salvar_lead(dados: dict):
+    ws = get_sheet()
+    if not ws:
+        return
     try:
-        gc = conectar_sheets()
-        if not gc:
-            return  # silencioso se não configurado
-        sheet_id = st.secrets.get("SHEET_ID", "")
-        if not sheet_id:
-            return
-        sh = gc.open_by_key(sheet_id)
-        try:
-            ws = sh.worksheet("Leads Paulo AI")
-        except Exception:
-            ws = sh.add_worksheet("Leads Paulo AI", rows=1000, cols=10)
-            ws.append_row(["Data/Hora", "Nicho", "Primeira Mensagem", "Resposta Paulo AI", "Sessão"])
-
-        from datetime import datetime as dt
-        session_id = st.session_state.get("session_id", "?")
         ws.append_row([
-            dt.now().strftime("%d/%m/%Y %H:%M"),
-            nicho,
-            primeira_mensagem[:500],
-            resposta_ia[:500],
-            session_id
+            dados.get("datetime", ""),
+            dados.get("session_id", ""),
+            dados.get("nicho", "Não identificado"),
+            dados.get("cidade_estado", "Não informado"),
+            dados.get("intencao", ""),
+            dados.get("primeira_pergunta", ""),
+            dados.get("total_msgs", 0),
         ])
     except Exception:
-        pass  # nunca quebra o chat por causa do sheets
+        pass
 
-# gera session_id único por visita
+def carregar_leads():
+    ws = get_sheet()
+    if not ws:
+        return []
+    try:
+        rows = ws.get_all_records()
+        return rows
+    except Exception:
+        return []
+
+# ─── EXTRAÇÃO INTELIGENTE COM IA ──────────────────────────────────────────────
+def extrair_dados_conversa(mensagens: list) -> dict:
+    """Usa a IA para extrair nicho, cidade/estado e intenção da conversa."""
+    if not mensagens:
+        return {}
+    conversa_txt = "\n".join([f"{m['role'].upper()}: {m['content'][:300]}" for m in mensagens[:6]])
+    prompt = f"""Analise essa conversa e extraia em JSON:
+- nicho: setor do negócio do usuário (ex: Clínica/Saúde, Advocacia, Contabilidade, E-commerce, Restaurante, Outro)
+- cidade_estado: cidade e estado mencionados (ex: São Paulo SP) ou "Não informado"
+- intencao: o que o usuário quer em 1 linha curta (ex: "Quer chatbot para clínica", "Consultoria em automação")
+
+Conversa:
+{conversa_txt}
+
+Responda APENAS o JSON, sem explicação. Exemplo:
+{{"nicho":"Clínica/Saúde","cidade_estado":"Belo Horizonte MG","intencao":"Quer automatizar atendimento"}}"""
+    try:
+        resp = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama-3.3-70b-versatile",
+            temperature=0,
+            max_tokens=150
+        )
+        raw = resp.choices[0].message.content.strip()
+        raw = re.sub(r"```json|```", "", raw).strip()
+        return json.loads(raw)
+    except Exception:
+        return {}
+
+# ─── SESSION STATE ────────────────────────────────────────────────────────────
+if "lista_mensagens" not in st.session_state:
+    st.session_state.lista_mensagens = []
+if "historico_ia" not in st.session_state:
+    st.session_state.historico_ia = []
 if "session_id" not in st.session_state:
-    import uuid
-    st.session_state.session_id = str(uuid.uuid4())[:8]
+    st.session_state.session_id = datetime.now().strftime("%Y%m%d%H%M%S")
+if "lead_salvo" not in st.session_state:
+    st.session_state.lead_salvo = False
+if "dados_lead" not in st.session_state:
+    st.session_state.dados_lead = {}
+if "pagina" not in st.session_state:
+    st.session_state.pagina = "chat"
+if "admin_ok" not in st.session_state:
+    st.session_state.admin_ok = False
 
-# ── NICHOS ───────────────────────────────────────────────────
-NICHOS = {
-    "🏥 Clínica / Saúde": {
-        "badge": "Especialista em Clínicas",
-        "prompt": """IDENTIDADE — Paulo Santos (Growth AI):
-Paulo Santos é especialista em Dados, IA e Automação com anos de experiência no mercado digital. Pós-graduado em Ciências de Dados & Inteligência Artificial, já trabalhou com empresas de diferentes segmentos aplicando automação inteligente com n8n, Python, GPT-4 e integração com WhatsApp para resolver problemas reais de operação e crescimento.
+# ─── ROTEAMENTO ───────────────────────────────────────────────────────────────
+params = st.query_params
+if params.get("admin") == "1" or st.session_state.pagina == "admin":
+    st.session_state.pagina = "admin"
+else:
+    st.session_state.pagina = "chat"
 
-Segmentos atendidos: clínicas, corretoras de seguros, escritórios contábeis, barbearias e e-commerce.
+# ══════════════════════════════════════════════════════════════════════════════
+# PÁGINA: DASHBOARD ADMIN
+# ══════════════════════════════════════════════════════════════════════════════
+if st.session_state.pagina == "admin":
+    st.markdown("## 🤖 Paulo AI — Painel Admin")
 
-Tecnologias: n8n · Python · SQL · GPT-4 · Power BI · Looker Studio · WhatsApp API · Google Ads · Meta Ads · Amazon Ads · VTEX Ads · Mercado Livre Ads
+    if not st.session_state.admin_ok:
+        senha = st.text_input("Senha de acesso:", type="password", placeholder="Digite a senha...")
+        if st.button("Entrar"):
+            if senha == ADMIN_PASSWORD:
+                st.session_state.admin_ok = True
+                st.rerun()
+            else:
+                st.error("Senha incorreta.")
+        st.stop()
 
-Serviços oferecidos:
-- Automação de Cobranças e Documentos
-- CRM + Cotação Automática para Corretoras
-- Dashboard Unificado de Performance
-- Automação de Agendamento e Clientes
-- Lead Scoring com IA
-- Análise de Dados e Relatório Estratégico
-- Estratégia de Retail Media (Amazon, ML, Shopee, VTEX, Farma)
-- Consultoria de E-commerce & Performance
-- Chatbot Inteligente com IA
-- App de Estatísticas e Dados
+    # ── Admin autenticado ──
+    st.markdown("---")
+    leads = carregar_leads()
 
-REGRAS DE COMPORTAMENTO:
-1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
-2. Responda dúvidas com informações úteis, práticas e consultivas.
-3. Ao identificar uma dor ou problema operacional, sugira como Paulo pode resolver com automação ou IA.
-4. Ao final de respostas relevantes, inclua um CTA natural:
-   "Quer falar diretamente com o Paulo? Entre em contato:"
-   📱 WhatsApp: (11) 95113-1232
-   📸 Instagram: @paulosantos.growthai
-5. Nunca mencione empresa empregadora atual. Foque sempre na experiência, formação e resultados.
-6. Seja consultivo, humano e direto. Nunca forçado na venda.
-7. Responda sempre em português brasileiro.
+    # Métricas
+    total     = len(leads)
+    nichos    = [l.get("Nicho Detectado","") for l in leads if l.get("Nicho Detectado","") not in ("","Não identificado")]
+    cidades   = [l.get("Cidade/Estado","") for l in leads if l.get("Cidade/Estado","") not in ("","Não informado")]
+    nicho_top = max(set(nichos), key=nichos.count) if nichos else "—"
 
-NICHO: Clínicas, consultórios e espaços de saúde.
-EXPERTISE: agendamento automático, lembretes WhatsApp, redução de faltas, pós-consulta automático, prontuários, relatórios de desempenho.
-SERVIÇOS DE PAULO para clínicas: Automação de agendamento (R$ 900–2.000), Chatbot de atendimento, Dashboard de performance."""
-    },
-    "🏢 Corretora de Seguros": {
-        "badge": "Especialista em Seguros",
-        "prompt": """IDENTIDADE — Paulo Santos (Growth AI):
-Paulo Santos é especialista em Dados, IA e Automação com anos de experiência no mercado digital. Pós-graduado em Ciências de Dados & Inteligência Artificial, já trabalhou com empresas de diferentes segmentos aplicando automação inteligente com n8n, Python, GPT-4 e integração com WhatsApp para resolver problemas reais de operação e crescimento.
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{total}</div><div class="dash-metric-label">Total de conversas</div></div>', unsafe_allow_html=True)
+    with c2:
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{len(nichos)}</div><div class="dash-metric-label">Nichos identificados</div></div>', unsafe_allow_html=True)
+    with c3:
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val">{len(cidades)}</div><div class="dash-metric-label">Cidades capturadas</div></div>', unsafe_allow_html=True)
+    with c4:
+        st.markdown(f'<div class="dash-metric"><div class="dash-metric-val" style="font-size:1.2rem">{nicho_top}</div><div class="dash-metric-label">Nicho mais frequente</div></div>', unsafe_allow_html=True)
 
-Segmentos atendidos: clínicas, corretoras de seguros, escritórios contábeis, barbearias e e-commerce.
+    st.markdown("<br>", unsafe_allow_html=True)
 
-Tecnologias: n8n · Python · SQL · GPT-4 · Power BI · Looker Studio · WhatsApp API · Google Ads · Meta Ads · Amazon Ads · VTEX Ads · Mercado Livre Ads
+    # Filtros
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        opcoes_nicho = ["Todos"] + sorted(set(l.get("Nicho Detectado","") for l in leads if l.get("Nicho Detectado","")))
+        filtro_nicho = st.selectbox("Filtrar por nicho:", opcoes_nicho)
+    with col_f2:
+        filtro_busca = st.text_input("Buscar por intenção ou cidade:", placeholder="Ex: chatbot, São Paulo...")
 
-Serviços oferecidos:
-- Automação de Cobranças e Documentos
-- CRM + Cotação Automática para Corretoras
-- Dashboard Unificado de Performance
-- Automação de Agendamento e Clientes
-- Lead Scoring com IA
-- Análise de Dados e Relatório Estratégico
-- Estratégia de Retail Media (Amazon, ML, Shopee, VTEX, Farma)
-- Consultoria de E-commerce & Performance
-- Chatbot Inteligente com IA
-- App de Estatísticas e Dados
+    leads_filtrados = leads
+    if filtro_nicho != "Todos":
+        leads_filtrados = [l for l in leads_filtrados if l.get("Nicho Detectado","") == filtro_nicho]
+    if filtro_busca:
+        termo = filtro_busca.lower()
+        leads_filtrados = [l for l in leads_filtrados if
+            termo in str(l.get("Intenção","")).lower() or
+            termo in str(l.get("Cidade/Estado","")).lower() or
+            termo in str(l.get("Primeira Pergunta","")).lower()]
 
+    st.markdown(f"**{len(leads_filtrados)} conversa(s) encontrada(s)**")
+    st.markdown("---")
 
-REGRAS DE COMPORTAMENTO:
-1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
-2. Responda dúvidas com informações úteis, práticas e consultivas.
-3. Ao identificar uma dor ou problema operacional, sugira como Paulo pode resolver com automação ou IA.
-4. Ao final de respostas relevantes, inclua um CTA natural:
-   "Quer falar diretamente com o Paulo? Entre em contato:"
-   📱 WhatsApp: (11) 95113-1232
-   📸 Instagram: @paulosantos.growthai
-5. Nunca mencione empresa empregadora atual. Foque sempre na experiência, formação e resultados.
-6. Seja consultivo, humano e direto. Nunca forçado na venda.
-7. Responda sempre em português brasileiro.
+    # Tabela de leads
+    if not leads_filtrados:
+        st.info("Nenhuma conversa encontrada ainda.")
+    else:
+        for lead in reversed(leads_filtrados):
+            nicho   = lead.get("Nicho Detectado", "—")
+            cidade  = lead.get("Cidade/Estado", "—")
+            intencao = lead.get("Intenção", "—")
+            dt      = lead.get("Data/Hora", "—")
+            perg    = lead.get("Primeira Pergunta", "")[:80]
+            msgs    = lead.get("Total Mensagens", "—")
+            st.markdown(f"""
+            <div class="lead-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <span class="lead-nicho">{nicho}</span>
+                <span class="lead-time">{dt} &nbsp;·&nbsp; {msgs} msgs</span>
+              </div>
+              <div style="color:#d4d0cb;font-size:0.95rem;margin-bottom:4px"><b>Intenção:</b> {intencao}</div>
+              <div style="color:#888;font-size:0.88rem"><b>Cidade:</b> {cidade} &nbsp;·&nbsp; <b>Pergunta:</b> "{perg}..."</div>
+            </div>""", unsafe_allow_html=True)
 
-NICHO: Corretoras de seguros e planos.
-EXPERTISE: cotação automática via WhatsApp, CRM de leads, follow-up de renovações, dashboard de pipeline de vendas.
-SERVIÇOS DE PAULO para corretoras: CRM + Cotação Automática (principal case — 4x mais cotações), Chatbot inteligente, Dashboard de vendas."""
-    },
-    "📊 Escritório Contábil": {
-        "badge": "Especialista em Contabilidade",
-        "prompt": """IDENTIDADE — Paulo Santos (Growth AI):
-Paulo Santos é especialista em Dados, IA e Automação com anos de experiência no mercado digital. Pós-graduado em Ciências de Dados & Inteligência Artificial, já trabalhou com empresas de diferentes segmentos aplicando automação inteligente com n8n, Python, GPT-4 e integração com WhatsApp para resolver problemas reais de operação e crescimento.
+    st.markdown("---")
+    if st.button("🚪 Sair do painel"):
+        st.session_state.admin_ok = False
+        st.session_state.pagina = "chat"
+        st.query_params.clear()
+        st.rerun()
 
-Segmentos atendidos: clínicas, corretoras de seguros, escritórios contábeis, barbearias e e-commerce.
+    st.stop()
 
-Tecnologias: n8n · Python · SQL · GPT-4 · Power BI · Looker Studio · WhatsApp API · Google Ads · Meta Ads · Amazon Ads · VTEX Ads · Mercado Livre Ads
-
-Serviços oferecidos:
-- Automação de Cobranças e Documentos
-- CRM + Cotação Automática para Corretoras
-- Dashboard Unificado de Performance
-- Automação de Agendamento e Clientes
-- Lead Scoring com IA
-- Análise de Dados e Relatório Estratégico
-- Estratégia de Retail Media (Amazon, ML, Shopee, VTEX, Farma)
-- Consultoria de E-commerce & Performance
-- Chatbot Inteligente com IA
-- App de Estatísticas e Dados
-
-
-REGRAS DE COMPORTAMENTO:
-1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
-2. Responda dúvidas com informações úteis, práticas e consultivas.
-3. Ao identificar uma dor ou problema operacional, sugira como Paulo pode resolver com automação ou IA.
-4. Ao final de respostas relevantes, inclua um CTA natural:
-   "Quer falar diretamente com o Paulo? Entre em contato:"
-   📱 WhatsApp: (11) 95113-1232
-   📸 Instagram: @paulosantos.growthai
-5. Nunca mencione empresa empregadora atual. Foque sempre na experiência, formação e resultados.
-6. Seja consultivo, humano e direto. Nunca forçado na venda.
-7. Responda sempre em português brasileiro.
-
-NICHO: Escritórios de contabilidade e assessoria fiscal.
-EXPERTISE: cobrança automática de documentos, DRE automático, lembretes de prazos fiscais, comunicação com clientes via WhatsApp, organização de arquivos.
-SERVIÇOS DE PAULO para contábeis: Automação de cobranças e documentos (principal case — −80% do tempo), Relatórios automáticos, Chatbot de atendimento."""
-    },
-    "✂️ Barbearia / Estética": {
-        "badge": "Especialista em Barbearias",
-        "prompt": """IDENTIDADE — Paulo Santos (Growth AI):
-Paulo Santos é especialista em Dados, IA e Automação com anos de experiência no mercado digital. Pós-graduado em Ciências de Dados & Inteligência Artificial, já trabalhou com empresas de diferentes segmentos aplicando automação inteligente com n8n, Python, GPT-4 e integração com WhatsApp para resolver problemas reais de operação e crescimento.
-
-Segmentos atendidos: clínicas, corretoras de seguros, escritórios contábeis, barbearias e e-commerce.
-
-Tecnologias: n8n · Python · SQL · GPT-4 · Power BI · Looker Studio · WhatsApp API · Google Ads · Meta Ads · Amazon Ads · VTEX Ads · Mercado Livre Ads
-
-Serviços oferecidos:
-- Automação de Cobranças e Documentos
-- CRM + Cotação Automática para Corretoras
-- Dashboard Unificado de Performance
-- Automação de Agendamento e Clientes
-- Lead Scoring com IA
-- Análise de Dados e Relatório Estratégico
-- Estratégia de Retail Media (Amazon, ML, Shopee, VTEX, Farma)
-- Consultoria de E-commerce & Performance
-- Chatbot Inteligente com IA
-- App de Estatísticas e Dados
-
-
-REGRAS DE COMPORTAMENTO:
-1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
-2. Responda dúvidas com informações úteis, práticas e consultivas.
-3. Ao identificar uma dor ou problema operacional, sugira como Paulo pode resolver com automação ou IA.
-4. Ao final de respostas relevantes, inclua um CTA natural:
-   "Quer falar diretamente com o Paulo? Entre em contato:"
-   📱 WhatsApp: (11) 95113-1232
-   📸 Instagram: @paulosantos.growthai
-5. Nunca mencione empresa empregadora atual. Foque sempre na experiência, formação e resultados.
-6. Seja consultivo, humano e direto. Nunca forçado na venda.
-7. Responda sempre em português brasileiro.
-
-NICHO: Barbearias, salões e estúdios de estética.
-EXPERTISE: agendamento automático, lembretes de confirmação, redução de no-show, programa de fidelidade, reativação de clientes inativos.
-SERVIÇOS DE PAULO para barbearias: Automação de agendamento, Chatbot WhatsApp, Dashboard de faturamento por barbeiro/serviço."""
-    },
-    "🛒 E-commerce / Loja": {
-        "badge": "Especialista em E-commerce",
-        "prompt": """IDENTIDADE — Paulo Santos (Growth AI):
-Paulo Santos é especialista em Dados, IA e Automação com anos de experiência no mercado digital. Pós-graduado em Ciências de Dados & Inteligência Artificial, já trabalhou com empresas de diferentes segmentos aplicando automação inteligente com n8n, Python, GPT-4 e integração com WhatsApp para resolver problemas reais de operação e crescimento.
-
-Segmentos atendidos: clínicas, corretoras de seguros, escritórios contábeis, barbearias e e-commerce.
-
-Tecnologias: n8n · Python · SQL · GPT-4 · Power BI · Looker Studio · WhatsApp API · Google Ads · Meta Ads · Amazon Ads · VTEX Ads · Mercado Livre Ads
-
-Serviços oferecidos:
-- Automação de Cobranças e Documentos
-- CRM + Cotação Automática para Corretoras
-- Dashboard Unificado de Performance
-- Automação de Agendamento e Clientes
-- Lead Scoring com IA
-- Análise de Dados e Relatório Estratégico
-- Estratégia de Retail Media (Amazon, ML, Shopee, VTEX, Farma)
-- Consultoria de E-commerce & Performance
-- Chatbot Inteligente com IA
-- App de Estatísticas e Dados
-
-
-REGRAS DE COMPORTAMENTO:
-1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
-2. Responda dúvidas com informações úteis, práticas e consultivas.
-3. Ao identificar uma dor ou problema operacional, sugira como Paulo pode resolver com automação ou IA.
-4. Ao final de respostas relevantes, inclua um CTA natural:
-   "Quer falar diretamente com o Paulo? Entre em contato:"
-   📱 WhatsApp: (11) 95113-1232
-   📸 Instagram: @paulosantos.growthai
-5. Nunca mencione empresa empregadora atual. Foque sempre na experiência, formação e resultados.
-6. Seja consultivo, humano e direto. Nunca forçado na venda.
-7. Responda sempre em português brasileiro.
-
-NICHO: Lojas virtuais, marcas e operações de e-commerce.
-EXPERTISE: Retail Media (Amazon Ads, ML Ads, Shopee, VTEX Ads), análise de SKU e ROAS, automação de campanhas, dashboards de performance multicanal.
-SERVIÇOS DE PAULO para e-commerce: Estratégia de Retail Media, Dashboard unificado de performance, Consultoria de e-commerce & mídia paga."""
-    },
-    "🤖 Geral": {
-        "badge": "Chat Geral",
-        "prompt": """Você é Paulo AI, um assistente inteligente geral — como o ChatGPT ou Gemini.
-Responda qualquer tipo de pergunta: ciência, história, tecnologia, negócios, curiosidades, receitas, viagens, saúde, cultura, entretenimento, idiomas, matemática, programação e muito mais.
-Sem restrição de tema. Seja útil, claro, completo e direto.
-Responda sempre em português brasileiro, a menos que o usuário escreva em outro idioma — nesse caso responda no idioma dele.
-Cite fontes quando usar dados da internet."""
-    }
-}
-
-# ── SELETOR DE NICHO ─────────────────────────────────────────
-st.markdown("""
-<div style="text-align:center;margin-bottom:1.2rem;padding:0 0.5rem">
-  <div style="font-size:1.05rem;color:#ffffff;font-weight:600;margin-bottom:0.4rem">
-    Qual é o seu segmento?
-  </div>
-  <div style="font-size:0.88rem;color:#b0b0b0;line-height:1.6">
-    Selecione o nicho do seu negócio para uma conversa especializada —
-    ou escolha <strong style="color:#b0a898">🤖 Geral</strong> para dúvidas livres sobre automação, dados e IA.
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-nicho = st.selectbox("Área:", list(NICHOS.keys()), label_visibility="collapsed")
-config = NICHOS[nicho]
-st.markdown(f'<div style="text-align:center;margin-bottom:1rem"><span class="nicho-badge">✦ {config["badge"]}</span></div>', unsafe_allow_html=True)
-
-# ── ESTADO ───────────────────────────────────────────────────
-for key in ["msgs", "hist_gemini", "engine_usado"]:
-    if key not in st.session_state:
-        st.session_state[key] = {} if key != "engine_usado" else "gemini"
-
-for key in ["msgs", "hist_gemini"]:
-    if nicho not in st.session_state[key]:
-        st.session_state[key][nicho] = []
-
-msgs       = st.session_state.msgs[nicho]
-hist_gem   = st.session_state.hist_gemini[nicho]
-
-for msg in msgs:
+# ══════════════════════════════════════════════════════════════════════════════
+# PÁGINA: CHAT
+# ══════════════════════════════════════════════════════════════════════════════
+for msg in st.session_state.lista_mensagens:
     st.chat_message(msg["role"]).write(msg["content"])
-
-# ── BUSCA ────────────────────────────────────────────────────
-tavily = TavilyClient(api_key=TAVILY_API_KEY)
 
 def buscar_internet(pergunta):
     try:
-        r = tavily.search(query=pergunta, search_depth="advanced", max_results=5)
-        return "\n".join(
-            f"Título: {x['title']}\nConteúdo: {x['content']}\nFonte: {x['url']}"
-            for x in r["results"]
-        ).strip()
+        resposta = tavily.search(query=pergunta, search_depth="advanced", max_results=5)
+        resultados = ""
+        for r in resposta["results"]:
+            resultados += f"\nTítulo: {r['title']}\nConteúdo: {r['content']}\nFonte: {r['url']}\n"
+        return resultados.strip()
     except Exception as e:
-        return f"Erro: {e}"
+        return f"Erro ao buscar: {str(e)}"
 
-def precisa_buscar(p):
-    sem = ["o que é","o que significa","como funciona","defina","explique",
-           "escreva","traduza","corrija","piada","poema","qual a fórmula"]
-    return not any(s in p.lower() for s in sem)
+def precisa_buscar(pergunta):
+    sem_busca = ["como se escreve", "o que significa", "defina", "qual a fórmula",
+                 "me conta uma piada", "escreva um poema", "traduza", "corrija"]
+    return not any(p in pergunta.lower() for p in sem_busca)
 
-# ── GEMINI ───────────────────────────────────────────────────
-def responder_gemini(system_prompt, historico, mensagem_com_contexto):
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash-preview-04-17",
-        system_instruction=system_prompt
-    )
-    # converte histórico para formato Gemini
-    hist_formatado = []
-    for h in historico[-12:]:
-        role = "user" if h["role"] == "user" else "model"
-        hist_formatado.append({"role": role, "parts": [h["content"]]})
+mensagem_usuario = st.chat_input("Digite sua mensagem...")
 
-    chat = model.start_chat(history=hist_formatado[:-1] if hist_formatado else [])
-    response = chat.send_message(mensagem_com_contexto)
-    return response.text
+if mensagem_usuario:
+    # Salva primeira pergunta
+    if not st.session_state.lista_mensagens:
+        st.session_state.dados_lead["primeira_pergunta"] = mensagem_usuario
+        st.session_state.dados_lead["datetime"] = datetime.now().strftime("%d/%m/%Y %H:%M")
+        st.session_state.dados_lead["session_id"] = st.session_state.session_id
 
-# ── GROQ (fallback) ──────────────────────────────────────────
-def responder_groq(system_prompt, historico, mensagem_com_contexto):
-    client = Groq(api_key=GROQ_API_KEY)
-    msgs_groq = [{"role": "system", "content": system_prompt}]
-    for h in historico[-12:]:
-        msgs_groq.append({"role": h["role"], "content": h["content"]})
-    msgs_groq.append({"role": "user", "content": mensagem_com_contexto})
-    resp = client.chat.completions.create(
-        messages=msgs_groq,
-        model="llama-3.3-70b-versatile",
-        temperature=0.5,
-        max_tokens=1024
-    )
-    return resp.choices[0].message.content
+    st.chat_message("user").write(mensagem_usuario)
+    st.session_state.lista_mensagens.append({"role": "user", "content": mensagem_usuario})
 
-# ── CHAT PRINCIPAL ───────────────────────────────────────────
-entrada = st.chat_input(f"Pergunte sobre {config['badge'].lower()}...")
-
-if entrada:
-    st.chat_message("user").write(entrada)
-    msgs.append({"role": "user", "content": entrada})
-    hist_gem.append({"role": "user", "content": entrada})
-
-    # busca
-    contexto = ""
-    if precisa_buscar(entrada):
+    contexto_busca = ""
+    if precisa_buscar(mensagem_usuario):
         with st.spinner("Buscando informações atualizadas..."):
-            resultado = buscar_internet(entrada)
+            resultado = buscar_internet(mensagem_usuario)
             if resultado:
-                data = datetime.now().strftime("%d/%m/%Y")
-                contexto = f"[INTERNET - {data}]\n{resultado}\n[FIM]\n\n"
+                data_hoje = datetime.now().strftime("%d/%m/%Y")
+                contexto_busca = f"[CONTEXTO DA INTERNET - {data_hoje}]\nUse como fonte principal:\n{resultado}\n[FIM]"
 
-    system = config["prompt"] + f"\nHoje: {datetime.now().strftime('%d/%m/%Y')}"
-    msg_completa = f"{contexto}Pergunta: {entrada}"
+    system_prompt = (
+        f"Você é Paulo AI, assistente inteligente com acesso à internet em tempo real.\n"
+        f"1. Use [CONTEXTO DA INTERNET] como fonte principal quando disponível.\n"
+        f"2. Cite as fontes.\n"
+        f"3. Seja claro e útil.\n"
+        f"4. Responda em português brasileiro.\n"
+        f"Hoje: {datetime.now().strftime('%d/%m/%Y')}"
+    )
 
-    resposta = None
-    engine   = "gemini"
+    conteudo_atual = f"{contexto_busca}\n\nPergunta: {mensagem_usuario}" if contexto_busca else mensagem_usuario
+    st.session_state.historico_ia.append({"role": "user", "content": conteudo_atual})
+    mensagens_ia = [{"role": "system", "content": system_prompt}] + st.session_state.historico_ia
 
-    # tenta Gemini primeiro
-    if GEMINI_API_KEY:
-        try:
-            with st.spinner("Paulo AI está pensando..."):
-                resposta = responder_gemini(system, hist_gem[:-1], msg_completa)
-            engine = "gemini"
-        except Exception as e:
-            pass  # fallback silencioso para Groq
+    try:
+        with st.spinner("Paulo AI está pensando..."):
+            resp = client.chat.completions.create(
+                messages=mensagens_ia,
+                model="llama-3.3-70b-versatile",
+                temperature=0.5,
+                max_tokens=1024
+            )
+        resposta_ia = resp.choices[0].message.content
+    except Exception as e:
+        resposta_ia = f"Erro: {str(e)}"
 
-    # fallback Groq
-    if resposta is None and GROQ_API_KEY:
-        try:
-            with st.spinner("Paulo AI está pensando (Groq)..."):
-                resposta = responder_groq(system, hist_gem[:-1], msg_completa)
-            engine = "groq"
-        except Exception as e:
-            resposta = f"Erro em ambos os modelos: {e}"
-            engine = "erro"
+    st.chat_message("assistant").write(resposta_ia)
+    st.session_state.lista_mensagens.append({"role": "assistant", "content": resposta_ia})
+    st.session_state.historico_ia.append({"role": "assistant", "content": resposta_ia})
 
-    if resposta is None:
-        resposta = "Configure ao menos uma API key (Gemini ou Groq)."
+    # ── Captura de lead: extrai dados após 2ª mensagem e salva ──
+    total_msgs = len(st.session_state.lista_mensagens)
+    st.session_state.dados_lead["total_msgs"] = total_msgs
 
-    st.chat_message("assistant").write(resposta)
-    msgs.append({"role": "assistant", "content": resposta})
-    hist_gem.append({"role": "assistant", "content": resposta})
-
-    # captura lead no primeiro contato
-    if len(msgs) <= 2:
-
-        registrar_lead(nicho, entrada, resposta)
-
-
-
-
+    if total_msgs >= 2 and not st.session_state.lead_salvo:
+        with st.spinner(""):
+            dados_extraidos = extrair_dados_conversa(st.session_state.lista_mensagens)
+            st.session_state.dados_lead.update(dados_extraidos)
+            salvar_lead(st.session_state.dados_lead)
+            st.session_state.lead_salvo = True
+    elif total_msgs > 2:
+        # Atualiza total de mensagens no lead a cada turno
+        st.session_state.dados_lead["total_msgs"] = total_msgs
