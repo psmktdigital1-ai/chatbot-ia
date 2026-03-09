@@ -170,8 +170,7 @@ Serviços oferecidos:
 - Consultoria de E-commerce & Performance
 - Chatbot Inteligente com IA
 - App de Estatísticas e Dados
-- Site / Portfólio Profissional
-- Identidade Visual + Kit de Marca
+
 
 REGRAS DE COMPORTAMENTO:
 1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
@@ -209,8 +208,7 @@ Serviços oferecidos:
 - Consultoria de E-commerce & Performance
 - Chatbot Inteligente com IA
 - App de Estatísticas e Dados
-- Site / Portfólio Profissional
-- Identidade Visual + Kit de Marca
+
 
 REGRAS DE COMPORTAMENTO:
 1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
@@ -248,8 +246,7 @@ Serviços oferecidos:
 - Consultoria de E-commerce & Performance
 - Chatbot Inteligente com IA
 - App de Estatísticas e Dados
-- Site / Portfólio Profissional
-- Identidade Visual + Kit de Marca
+
 
 REGRAS DE COMPORTAMENTO:
 1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
@@ -287,8 +284,7 @@ Serviços oferecidos:
 - Consultoria de E-commerce & Performance
 - Chatbot Inteligente com IA
 - App de Estatísticas e Dados
-- Site / Portfólio Profissional
-- Identidade Visual + Kit de Marca
+
 
 REGRAS DE COMPORTAMENTO:
 1. No PRIMEIRO contato (histórico vazio), apresente Paulo de forma calorosa e resumida — experiência, formação, segmentos atendidos e serviços. Finalize convidando o usuário a perguntar o que quiser. Exemplo de encerramento da apresentação: "Estou aqui para tirar qualquer dúvida do seu negócio e te ajudar com automação. Qual é a sua maior dor hoje? 😊"
@@ -451,6 +447,7 @@ if entrada:
     if len(msgs) <= 2:
 
         registrar_lead(nicho, entrada, resposta)
+
 
 
 
