@@ -79,7 +79,6 @@ TAVILY_API_KEY = st.secrets["TAVILY_API_KEY"]
 ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
 SHEET_ID       = st.secrets["SHEET_ID"]
 
-# client configurado via requests direto
 tavily = TavilyClient(api_key=TAVILY_API_KEY)
 
 # ─── GOOGLE SHEETS ────────────────────────────────────────────────────────────
@@ -143,13 +142,21 @@ Conversa:
 Responda APENAS o JSON, sem explicação. Exemplo:
 {{"nicho":"Clínica/Saúde","cidade_estado":"Belo Horizonte MG","intencao":"Quer automatizar atendimento"}}"""
     try:
-        resp = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
-            temperature=0,
-            max_tokens=150
+        resp = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama-3.3-70b-versatile",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0,
+                "max_tokens": 150
+            },
+            timeout=15
         )
-        raw = resp.choices[0].message.content.strip()
+        raw = resp.json()["choices"][0]["message"]["content"].strip()
         raw = re.sub(r"```json|```", "", raw).strip()
         return json.loads(raw)
     except Exception:
@@ -324,11 +331,20 @@ if mensagem_usuario:
     try:
         with st.spinner("Paulo AI está pensando..."):
             resp = requests.post(
-    "https://api.groq.com/openai/v1/chat/completions",
-    headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
-    json={"model": "llama-3.3-70b-versatile", "messages": mensagens_ia, "temperature": 0.5, "max_tokens": 1024}
-)
-resposta_ia = resp.json()["choices"][0]["message"]["content"]
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": mensagens_ia,
+                    "temperature": 0.5,
+                    "max_tokens": 1024
+                },
+                timeout=30
+            )
+            resposta_ia = resp.json()["choices"][0]["message"]["content"]
     except Exception as e:
         resposta_ia = f"Erro: {str(e)}"
 
@@ -349,5 +365,3 @@ resposta_ia = resp.json()["choices"][0]["message"]["content"]
     elif total_msgs > 2:
         # Atualiza total de mensagens no lead a cada turno
         st.session_state.dados_lead["total_msgs"] = total_msgs
-
-
