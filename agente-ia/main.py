@@ -103,8 +103,8 @@ def registrar_lead(nicho, primeira_mensagem, resposta_ia):
             resposta_ia[:500],
             session_id
         ])
-    except Exception:
-        pass  # nunca quebra o chat por causa do sheets
+    except Exception as e:
+    st.error(f"Erro ao salvar no Sheets: {e}")
 
 # gera session_id único por visita
 if "session_id" not in st.session_state:
@@ -456,5 +456,6 @@ if entrada:
     if len(msgs) <= 2:
 
         registrar_lead(nicho, entrada, resposta)
+
 
 
