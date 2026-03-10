@@ -322,7 +322,7 @@ Cite fontes quando usar dados da internet."""
 
 
 # ── SELETOR DE NICHO ─────────────────────────────────────────
-    st.markdown("""
+st.markdown("""
 <div style="text-align:center;margin-bottom:1.2rem;padding:0 0.5rem">
   <div style="font-size:1.05rem;color:#ffffff;font-weight:600;margin-bottom:0.4rem">
     Qual é o seu segmento?
@@ -456,4 +456,5 @@ if entrada:
     if len(msgs) <= 2:
 
         registrar_lead(nicho, entrada, resposta)
+
 
