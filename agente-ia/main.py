@@ -13,7 +13,6 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered")
 
 st_autorefresh(interval=600000, limit=None, key="keepalive")
-```
 
 **No arquivo `requirements.txt`**, adicione uma linha nova:
 ```
@@ -459,3 +458,4 @@ if entrada:
     if len(msgs) <= 2:
 
         registrar_lead(nicho, entrada, resposta)
+
