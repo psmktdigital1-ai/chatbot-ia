@@ -320,45 +320,6 @@ Cite fontes quando usar dados da internet."""
     }
 }
 
-# ── APRESENTAÇÃO FIXA ────────────────────────────────────────
-st.markdown("""
-<style>
-.apresentacao{background:linear-gradient(135deg,#191e2b 0%,#141820 100%);border:1px solid #252d3d;border-radius:16px;padding:1.4rem 1.7rem 1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
-.apresentacao::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8,#0369a1)}
-.apres-titulo{font-family:'Instrument Serif',serif;font-size:1.2rem;color:#f0ede8;margin-bottom:0.55rem}
-.apres-texto{font-size:0.92rem;color:#8a8580;line-height:1.75}
-.apres-texto b{color:#c8c4be}
-.tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:1rem}
-.tag{background:#0ea5e912;border:1px solid #0ea5e928;color:#38bdf8;border-radius:20px;padding:3px 11px;font-size:0.78rem;font-weight:500}
-[data-testid="stTabs"] [role="tablist"]{background:#1a1a1a!important;border-radius:10px!important;padding:4px!important;border:1px solid #252525!important;gap:2px!important}
-[data-testid="stTabs"] button[role="tab"]{background:transparent!important;border:none!important;border-radius:7px!important;color:#555!important;font-size:0.88rem!important;font-weight:500!important;padding:0.4rem 1rem!important;transition:all 0.2s!important}
-[data-testid="stTabs"] button[role="tab"][aria-selected="true"]{background:#0ea5e9!important;color:#fff!important}
-[data-testid="stTabs"] [data-testid="stTabPanel"]{background:#181818!important;border:1px solid #242424!important;border-radius:12px!important;padding:1.4rem 1.5rem!important;margin-top:4px}
-.info-card{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:12px;padding:1.05rem 1.25rem;margin-bottom:0.75rem}
-.info-card-head{font-weight:600;color:#dedad5;font-size:0.93rem;margin-bottom:0.4rem}
-.info-card-body{font-size:0.87rem;color:#777;line-height:1.7}
-.info-card-body b{color:#a8a49f}
-.preco-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:0.7rem}
-.preco-badge{background:#0ea5e918;border:1px solid #0ea5e935;color:#38bdf8;border-radius:6px;padding:3px 11px;font-size:0.79rem;font-weight:600}
-.destaque{background:#0ea5e90a;border-left:3px solid #0ea5e9;border-radius:0 8px 8px 0;padding:0.65rem 1rem;margin-top:0.75rem;font-size:0.86rem;color:#888;line-height:1.65}
-</style>
-<div class="apresentacao">
-  <div class="apres-titulo">👋 Olá! Sou o Paulo</div>
-  <div class="apres-texto">
-    Ajudo empresas a <b>crescerem com Inteligência Artificial</b> — criando chatbots personalizados
-    e automações que economizam tempo, capturam leads e melhoram o atendimento.<br><br>
-    Explore as abas abaixo para conhecer meus serviços, ou converse diretamente com minha IA
-    que tem <b>acesso à internet em tempo real</b>. 🚀
-  </div>
-  <div class="tag-row">
-    <span class="tag">🤖 Chatbots com IA</span>
-    <span class="tag">⚙️ Automações</span>
-    <span class="tag">📊 Captura de Leads</span>
-    <span class="tag">🌐 Pesquisa em tempo real</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
 # ── ABAS INFORMATIVAS + CHAT ──────────────────────────────────
 aba_chat, aba_chatbots, aba_automacoes = st.tabs(["💬 Converse comigo", "🤖 Chatbots com IA", "⚙️ Automações"])
 
