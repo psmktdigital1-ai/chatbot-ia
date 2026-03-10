@@ -425,9 +425,10 @@ if entrada:
     hist_gem.append({"role": "assistant", "content": resposta})
 
     # captura lead no primeiro contato
-    if len(msgs) <= 2:
+    if len(msgs) <= 6:
 
         registrar_lead(nicho, entrada, resposta)
+
 
 
 
