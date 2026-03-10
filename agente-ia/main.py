@@ -104,8 +104,8 @@ def registrar_lead(nicho, primeira_mensagem, resposta_ia):
             session_id
         ])
     except Exception as e:
-    st.error(f"Erro ao salvar no Sheets: {e}")
-
+        st.error(f"Erro ao salvar no Sheets: {e}")
+    
 # gera session_id único por visita
 if "session_id" not in st.session_state:
     import uuid
@@ -456,6 +456,7 @@ if entrada:
    if entrada:
 
         registrar_lead(nicho, entrada, resposta)
+
 
 
 
