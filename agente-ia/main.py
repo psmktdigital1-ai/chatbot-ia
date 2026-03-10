@@ -320,63 +320,6 @@ Cite fontes quando usar dados da internet."""
     }
 }
 
-# ── ABAS INFORMATIVAS + CHAT ──────────────────────────────────
-aba_chat, aba_chatbots, aba_automacoes = st.tabs(["💬 Converse comigo", "🤖 Chatbots com IA", "⚙️ Automações"])
-
-with aba_chatbots:
-    st.markdown("""
-<div class="info-card">
-  <div class="info-card-head">🤖 O que é um Chatbot com IA?</div>
-  <div class="info-card-body">Um assistente virtual treinado com as informações do seu negócio. Atende seus clientes <b>24h por dia</b> — respondendo dúvidas, agendando consultas, qualificando leads e muito mais, de forma automática e humanizada.</div>
-</div>
-<div class="info-card">
-  <div class="info-card-head">💡 Para quem é ideal?</div>
-  <div class="info-card-body">
-    • <b>Clínicas e consultórios</b> — agendamento, triagem e lembretes automáticos<br>
-    • <b>Advogados e contadores</b> — triagem e qualificação de clientes<br>
-    • <b>E-commerce e lojas</b> — suporte, rastreio de pedidos e vendas<br>
-    • <b>Qualquer negócio</b> que receba mensagens no WhatsApp ou site
-  </div>
-</div>
-<div class="info-card">
-  <div class="info-card-head">💰 Investimento</div>
-  <div class="info-card-body">Chatbot personalizado completo com IA, integração ao WhatsApp e painel de gestão.</div>
-  <div class="preco-row">
-    <span class="preco-badge">Setup: R$ 1.500 – R$ 4.000</span>
-    <span class="preco-badge">Mensal: R$ 300 – R$ 600</span>
-  </div>
-  <div class="destaque">✅ Inclui treinamento da IA, integração ao WhatsApp, painel de leads e suporte técnico.<br>📱 WhatsApp: (11) 95113-1232 &nbsp;·&nbsp; 📸 @paulosantos.growthai</div>
-</div>
-""", unsafe_allow_html=True)
-
-with aba_automacoes:
-    st.markdown("""
-<div class="info-card">
-  <div class="info-card-head">⚙️ O que são Automações com IA?</div>
-  <div class="info-card-body">Conectam seus sistemas e eliminam tarefas manuais repetitivas. Com IA ficam mais inteligentes: tomam decisões, analisam dados e executam fluxos complexos <b>sem intervenção humana</b>.</div>
-</div>
-<div class="info-card">
-  <div class="info-card-head">🔗 Exemplos de automações</div>
-  <div class="info-card-body">
-    • <b>Disparo automático</b> de mensagens para leads no WhatsApp<br>
-    • <b>Integração</b> entre formulários, planilhas, CRM e e-mail<br>
-    • <b>Relatórios gerados por IA</b> e enviados automaticamente<br>
-    • <b>Qualificação de leads</b> com IA antes de chegar ao comercial<br>
-    • <b>Notificações em tempo real</b> para sua equipe
-  </div>
-</div>
-<div class="info-card">
-  <div class="info-card-head">💰 Investimento</div>
-  <div class="info-card-body">Projetos sob medida para os processos do seu negócio.</div>
-  <div class="preco-row">
-    <span class="preco-badge">Projeto: R$ 2.500 – R$ 8.000</span>
-    <span class="preco-badge">Consultoria: R$ 800 – R$ 2.000</span>
-  </div>
-  <div class="destaque">⚙️ Quer saber qual automação faz sentido para você? <b>Converse comigo na aba ao lado!</b><br>📱 WhatsApp: (11) 95113-1232 &nbsp;·&nbsp; 📸 @paulosantos.growthai</div>
-</div>
-""", unsafe_allow_html=True)
-
-with aba_chat:
 
 # ── SELETOR DE NICHO ─────────────────────────────────────────
     st.markdown("""
@@ -513,3 +456,4 @@ if entrada:
     if len(msgs) <= 2:
 
         registrar_lead(nicho, entrada, resposta)
+
