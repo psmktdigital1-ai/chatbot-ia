@@ -1,6 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
-from groq import Groq
+import requests
 from tavily import TavilyClient
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
@@ -13,11 +13,6 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered")
 
 st_autorefresh(interval=600000, limit=None, key="keepalive")
-
-**No arquivo `requirements.txt`**, adicione uma linha nova:
-```
-streamlit-autorefresh==0.0.1
-
 
 AVATAR_B64 = "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiMxZTJhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGQxNTIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjEwMCIgZmlsbD0idXJsKCNiZykiLz4KICA8cmVjdCB4PSI0OCIgeT0iNDIiIHdpZHRoPSIxMDQiIGhlaWdodD0iODIiIHJ4PSIxOCIgZmlsbD0iIzBmMWYzMCIgc3Ryb2tlPSIjMmE0YTZhIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxyZWN0IHg9IjYwIiB5PSI2MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMTAiIGZpbGw9InJnYmEoNTYsODksMjQ4LDAuMTUpIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGVsbGlwc2UgY3g9Ijc5IiBjeT0iNzYiIHJ4PSI4IiByeT0iNiIgZmlsbD0iIzBlYTVlOSIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjEyMSIgY3k9Ijc2IiByeD0iOCIgcnk9IjYiIGZpbGw9IiMwZWE1ZTkiIG9wYWNpdHk9IjAuOSIvPgogIDxyZWN0IHg9IjY4IiB5PSI5OCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjE2IiByeD0iNSIgZmlsbD0iIzBhMTgyNSIgc3Ryb2tlPSIjMWUzYTU1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSI5NyIgeT0iMTAzIiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iIzM4YmRmOCIvPgogIDxwYXRoIGQ9Ik0zMCAyMDAgUTMyIDE1NSA1MiAxNDAgUTY4IDEzMiAxMDAgMTM0IFExMzIgMTMyIDE0OCAxNDAgUTE2OCAxNTUgMTcwIDIwMFoiIGZpbGw9IiMwZjFmMzAiLz4KPC9zdmc+"
 
@@ -115,6 +110,8 @@ def registrar_lead(nicho, primeira_mensagem, resposta_ia):
 if "session_id" not in st.session_state:
     import uuid
     st.session_state.session_id = str(uuid.uuid4())[:8]
+if "boas_vindas_ok" not in st.session_state:
+    st.session_state.boas_vindas_ok = False
 
 # ── NICHOS ───────────────────────────────────────────────────
 NICHOS = {
@@ -323,8 +320,105 @@ Cite fontes quando usar dados da internet."""
     }
 }
 
-# ── SELETOR DE NICHO ─────────────────────────────────────────
+# ── APRESENTAÇÃO FIXA ────────────────────────────────────────
 st.markdown("""
+<style>
+.apresentacao{background:linear-gradient(135deg,#191e2b 0%,#141820 100%);border:1px solid #252d3d;border-radius:16px;padding:1.4rem 1.7rem 1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.apresentacao::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8,#0369a1)}
+.apres-titulo{font-family:'Instrument Serif',serif;font-size:1.2rem;color:#f0ede8;margin-bottom:0.55rem}
+.apres-texto{font-size:0.92rem;color:#8a8580;line-height:1.75}
+.apres-texto b{color:#c8c4be}
+.tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:1rem}
+.tag{background:#0ea5e912;border:1px solid #0ea5e928;color:#38bdf8;border-radius:20px;padding:3px 11px;font-size:0.78rem;font-weight:500}
+[data-testid="stTabs"] [role="tablist"]{background:#1a1a1a!important;border-radius:10px!important;padding:4px!important;border:1px solid #252525!important;gap:2px!important}
+[data-testid="stTabs"] button[role="tab"]{background:transparent!important;border:none!important;border-radius:7px!important;color:#555!important;font-size:0.88rem!important;font-weight:500!important;padding:0.4rem 1rem!important;transition:all 0.2s!important}
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"]{background:#0ea5e9!important;color:#fff!important}
+[data-testid="stTabs"] [data-testid="stTabPanel"]{background:#181818!important;border:1px solid #242424!important;border-radius:12px!important;padding:1.4rem 1.5rem!important;margin-top:4px}
+.info-card{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:12px;padding:1.05rem 1.25rem;margin-bottom:0.75rem}
+.info-card-head{font-weight:600;color:#dedad5;font-size:0.93rem;margin-bottom:0.4rem}
+.info-card-body{font-size:0.87rem;color:#777;line-height:1.7}
+.info-card-body b{color:#a8a49f}
+.preco-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:0.7rem}
+.preco-badge{background:#0ea5e918;border:1px solid #0ea5e935;color:#38bdf8;border-radius:6px;padding:3px 11px;font-size:0.79rem;font-weight:600}
+.destaque{background:#0ea5e90a;border-left:3px solid #0ea5e9;border-radius:0 8px 8px 0;padding:0.65rem 1rem;margin-top:0.75rem;font-size:0.86rem;color:#888;line-height:1.65}
+</style>
+<div class="apresentacao">
+  <div class="apres-titulo">👋 Olá! Sou o Paulo</div>
+  <div class="apres-texto">
+    Ajudo empresas a <b>crescerem com Inteligência Artificial</b> — criando chatbots personalizados
+    e automações que economizam tempo, capturam leads e melhoram o atendimento.<br><br>
+    Explore as abas abaixo para conhecer meus serviços, ou converse diretamente com minha IA
+    que tem <b>acesso à internet em tempo real</b>. 🚀
+  </div>
+  <div class="tag-row">
+    <span class="tag">🤖 Chatbots com IA</span>
+    <span class="tag">⚙️ Automações</span>
+    <span class="tag">📊 Captura de Leads</span>
+    <span class="tag">🌐 Pesquisa em tempo real</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ── ABAS INFORMATIVAS + CHAT ──────────────────────────────────
+aba_chat, aba_chatbots, aba_automacoes = st.tabs(["💬 Converse comigo", "🤖 Chatbots com IA", "⚙️ Automações"])
+
+with aba_chatbots:
+    st.markdown("""
+<div class="info-card">
+  <div class="info-card-head">🤖 O que é um Chatbot com IA?</div>
+  <div class="info-card-body">Um assistente virtual treinado com as informações do seu negócio. Atende seus clientes <b>24h por dia</b> — respondendo dúvidas, agendando consultas, qualificando leads e muito mais, de forma automática e humanizada.</div>
+</div>
+<div class="info-card">
+  <div class="info-card-head">💡 Para quem é ideal?</div>
+  <div class="info-card-body">
+    • <b>Clínicas e consultórios</b> — agendamento, triagem e lembretes automáticos<br>
+    • <b>Advogados e contadores</b> — triagem e qualificação de clientes<br>
+    • <b>E-commerce e lojas</b> — suporte, rastreio de pedidos e vendas<br>
+    • <b>Qualquer negócio</b> que receba mensagens no WhatsApp ou site
+  </div>
+</div>
+<div class="info-card">
+  <div class="info-card-head">💰 Investimento</div>
+  <div class="info-card-body">Chatbot personalizado completo com IA, integração ao WhatsApp e painel de gestão.</div>
+  <div class="preco-row">
+    <span class="preco-badge">Setup: R$ 1.500 – R$ 4.000</span>
+    <span class="preco-badge">Mensal: R$ 300 – R$ 600</span>
+  </div>
+  <div class="destaque">✅ Inclui treinamento da IA, integração ao WhatsApp, painel de leads e suporte técnico.<br>📱 WhatsApp: (11) 95113-1232 &nbsp;·&nbsp; 📸 @paulosantos.growthai</div>
+</div>
+""", unsafe_allow_html=True)
+
+with aba_automacoes:
+    st.markdown("""
+<div class="info-card">
+  <div class="info-card-head">⚙️ O que são Automações com IA?</div>
+  <div class="info-card-body">Conectam seus sistemas e eliminam tarefas manuais repetitivas. Com IA ficam mais inteligentes: tomam decisões, analisam dados e executam fluxos complexos <b>sem intervenção humana</b>.</div>
+</div>
+<div class="info-card">
+  <div class="info-card-head">🔗 Exemplos de automações</div>
+  <div class="info-card-body">
+    • <b>Disparo automático</b> de mensagens para leads no WhatsApp<br>
+    • <b>Integração</b> entre formulários, planilhas, CRM e e-mail<br>
+    • <b>Relatórios gerados por IA</b> e enviados automaticamente<br>
+    • <b>Qualificação de leads</b> com IA antes de chegar ao comercial<br>
+    • <b>Notificações em tempo real</b> para sua equipe
+  </div>
+</div>
+<div class="info-card">
+  <div class="info-card-head">💰 Investimento</div>
+  <div class="info-card-body">Projetos sob medida para os processos do seu negócio.</div>
+  <div class="preco-row">
+    <span class="preco-badge">Projeto: R$ 2.500 – R$ 8.000</span>
+    <span class="preco-badge">Consultoria: R$ 800 – R$ 2.000</span>
+  </div>
+  <div class="destaque">⚙️ Quer saber qual automação faz sentido para você? <b>Converse comigo na aba ao lado!</b><br>📱 WhatsApp: (11) 95113-1232 &nbsp;·&nbsp; 📸 @paulosantos.growthai</div>
+</div>
+""", unsafe_allow_html=True)
+
+with aba_chat:
+
+# ── SELETOR DE NICHO ─────────────────────────────────────────
+    st.markdown("""
 <div style="text-align:center;margin-bottom:1.2rem;padding:0 0.5rem">
   <div style="font-size:1.05rem;color:#ffffff;font-weight:600;margin-bottom:0.4rem">
     Qual é o seu segmento?
@@ -392,18 +486,18 @@ def responder_gemini(system_prompt, historico, mensagem_com_contexto):
 
 # ── GROQ (fallback) ──────────────────────────────────────────
 def responder_groq(system_prompt, historico, mensagem_com_contexto):
-    client = Groq(api_key=GROQ_API_KEY)
     msgs_groq = [{"role": "system", "content": system_prompt}]
     for h in historico[-12:]:
         msgs_groq.append({"role": h["role"], "content": h["content"]})
     msgs_groq.append({"role": "user", "content": mensagem_com_contexto})
-    resp = client.chat.completions.create(
-        messages=msgs_groq,
-        model="llama-3.3-70b-versatile",
-        temperature=0.5,
-        max_tokens=1024
+    resp = requests.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+        json={"model": "llama-3.3-70b-versatile", "messages": msgs_groq,
+              "temperature": 0.5, "max_tokens": 1024},
+        timeout=30
     )
-    return resp.choices[0].message.content
+    return resp.json()["choices"][0]["message"]["content"]
 
 # ── CHAT PRINCIPAL ───────────────────────────────────────────
 entrada = st.chat_input(f"Pergunte sobre {config['badge'].lower()}...")
@@ -458,4 +552,3 @@ if entrada:
     if len(msgs) <= 2:
 
         registrar_lead(nicho, entrada, resposta)
-
