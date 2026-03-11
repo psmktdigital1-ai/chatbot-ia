@@ -88,7 +88,7 @@ GROQ_API_KEY   = st.secrets.get("GROQ_API_KEY",   os.getenv("GROQ_API_KEY",   ""
 TAVILY_API_KEY = st.secrets.get("TAVILY_API_KEY",  os.getenv("TAVILY_API_KEY", ""))
 ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD",  os.getenv("ADMIN_PASSWORD", "paulo2025"))
 SHEET_ID       = st.secrets.get("SHEET_ID",        os.getenv("SHEET_ID", ""))
-GOOGLE_CREDS   = st.secrets.get("GOOGLE_CREDS",    os.getenv("GOOGLE_CREDS", ""))
+GOOGLE_CREDS   = st.secrets.get("GOOGLE_CREDS", st.secrets.get("GOOGLE_CREDENTIALS", os.getenv("GOOGLE_CREDS", "")))
 
 if not TAVILY_API_KEY:
     st.error("⚠️ Configure TAVILY_API_KEY em .streamlit/secrets.toml")
