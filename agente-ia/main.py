@@ -80,6 +80,27 @@ html,body,[data-testid="stAppViewContainer"]{{background:#141414!important;font-
 <div class="sep"></div>
 """, unsafe_allow_html=True)
 
+# ── BOTÃO FLUTUANTE WHATSAPP ──────────────────────────────────
+st.markdown("""
+<style>
+.whatsapp-float{position:fixed;bottom:28px;right:28px;z-index:9999;display:flex;align-items:center;gap:10px;text-decoration:none;animation:fadeInUp 0.6s ease}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.whatsapp-bubble{background:#25d366;border-radius:50%;width:58px;height:58px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,0.45);transition:transform 0.2s,box-shadow 0.2s}
+.whatsapp-bubble:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(37,211,102,0.6)}
+.whatsapp-bubble svg{width:30px;height:30px;fill:#fff}
+.whatsapp-label{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:6px 12px;font-size:0.8rem;color:#d4d0cb;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.4);opacity:0;transform:translateX(10px);transition:opacity 0.2s,transform 0.2s;pointer-events:none}
+.whatsapp-float:hover .whatsapp-label{opacity:1;transform:translateX(0)}
+</style>
+<a class="whatsapp-float" href="https://wa.me/5511951131232?text=Ol%C3%A1%20Paulo%2C%20vi%20seu%20assistente%20de%20IA%20e%20quero%20saber%20mais!" target="_blank">
+  <span class="whatsapp-label">Falar com o Paulo</span>
+  <div class="whatsapp-bubble">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 2C8.28 2 2 8.28 2 16c0 2.47.67 4.78 1.84 6.76L2 30l7.45-1.81A13.93 13.93 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm7.37 19.63c-.31.87-1.53 1.59-2.52 1.8-.67.14-1.55.25-4.5-1.02-3.78-1.6-6.22-5.43-6.41-5.68-.18-.25-1.5-2-.1-3.8a2.3 2.3 0 011.7-.9c.21 0 .4.01.57.02.5.02.75.05 1.08.84.4 1 1.37 3.44 1.49 3.69.12.25.2.54.04.87-.15.34-.27.5-.52.78-.25.28-.49.5-.74.8-.22.27-.47.56-.19 1.06.28.5 1.24 2.04 2.65 3.3 1.82 1.62 3.33 2.13 3.88 2.36.54.23.86.19 1.18-.12.32-.31 1.23-1.44 1.56-1.93.32-.5.65-.41 1.09-.25.44.16 2.8 1.32 3.28 1.56.48.24.8.36.92.56.12.2.12 1.07-.19 1.96z"/>
+    </svg>
+  </div>
+</a>
+""", unsafe_allow_html=True)
+
 # ══════════════════════════════════════════════════════════════
 # API KEYS
 # ══════════════════════════════════════════════════════════════
@@ -464,51 +485,45 @@ if is_admin:
 # PÁGINA: CHAT PRINCIPAL
 # ══════════════════════════════════════════════════════════════
 
-# ── CAPTURA DE NOME ──────────────────────────────────────────
-if not st.session_state.nome_confirmado:
-    st.markdown("""
+# ── CARD UNIFICADO: BOAS-VINDAS + NOME + NICHO ───────────────
+st.markdown("""
 <style>
-.nome-card{background:linear-gradient(135deg,#191e2b 0%,#141820 100%);border:1px solid #252d3d;border-radius:16px;padding:2rem 2rem 1.8rem;margin-bottom:1.5rem;position:relative;overflow:hidden;text-align:center}
-.nome-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8,#0369a1)}
-.nome-titulo{font-family:'Instrument Serif',serif;font-size:1.5rem;color:#f0ede8;margin-bottom:0.5rem}
-.nome-sub{font-size:0.92rem;color:#888;line-height:1.7;margin-bottom:1.2rem}
-</style>
-<div class="nome-card">
-  <div class="nome-titulo">👋 Olá! Bem-vindo ao Paulo AI</div>
-  <div class="nome-sub">Antes de começar, como posso te chamar?</div>
-</div>
-""", unsafe_allow_html=True)
-
-    col_a, col_b, col_c = st.columns([1,3,1])
-    with col_b:
-        nome_input = st.text_input("", placeholder="Digite seu nome aqui...", label_visibility="collapsed", key="input_nome")
-        if st.button("Começar conversa →", type="primary", use_container_width=True):
-            if nome_input.strip():
-                st.session_state.nome_usuario = nome_input.strip()
-                st.session_state.nome_confirmado = True
-                st.rerun()
-            else:
-                st.warning("Por favor, digite seu nome para continuar.")
-    st.stop()
-
-# ── CARD DE BOAS-VINDAS ───────────────────────────────────────
-nome = st.session_state.nome_usuario
-st.markdown(f"""
-<style>
-.bv-card{{background:#191e2b;border:1px solid #252d3d;border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1.4rem;position:relative;overflow:hidden}}
-.bv-card::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8)}}
-.bv-titulo{{font-size:1rem;font-weight:600;color:#f0ede8;margin-bottom:0.5rem}}
-.bv-item{{display:flex;align-items:flex-start;gap:10px;margin-bottom:0.4rem;font-size:0.87rem;color:#888;line-height:1.5}}
-.bv-item b{{color:#b0ada8}}
+.bv-card{background:#191e2b;border:1px solid #252d3d;border-radius:16px;padding:1.5rem 1.7rem 1.6rem;margin-bottom:1.4rem;position:relative;overflow:hidden}
+.bv-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8,#0369a1)}
+.bv-titulo{font-size:1rem;font-weight:600;color:#f0ede8;margin-bottom:0.7rem}
+.bv-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:0.35rem;font-size:0.87rem;color:#777;line-height:1.5}
+.bv-item b{color:#a8a49f}
+.bv-divider{height:1px;background:#252d3d;margin:1rem 0}
+.bv-nome-label{font-size:0.85rem;color:#888;margin-bottom:0.4rem;font-weight:500}
 </style>
 <div class="bv-card">
-  <div class="bv-titulo">Olá, {nome}! 👋 Veja o que você pode fazer aqui:</div>
-  <div class="bv-item">💬 <span><b>Converse naturalmente</b> — me conte sobre o seu negócio e suas dores</span></div>
-  <div class="bv-item">🔍 <span><b>Tire dúvidas</b> sobre automação, chatbots, IA e tecnologia com acesso à internet</span></div>
-  <div class="bv-item">🎯 <span><b>Selecione seu segmento</b> abaixo para uma conversa mais personalizada</span></div>
-  <div class="bv-item">📱 <span><b>Se quiser avançar</b>, fale direto com o Paulo: <b>(11) 95113-1232</b></span></div>
+  <div class="bv-titulo">👋 Bem-vindo ao Paulo AI — veja o que você pode fazer aqui:</div>
+  <div class="bv-item">💬 <span><b>Converse naturalmente</b> sobre o seu negócio, dores e desafios</span></div>
+  <div class="bv-item">🔍 <span><b>Tire dúvidas</b> sobre automação, chatbots e IA com acesso à internet em tempo real</span></div>
+  <div class="bv-item">🎯 <span><b>Selecione seu segmento</b> abaixo para uma conversa especializada no seu nicho</span></div>
+  <div class="bv-item">📱 <span><b>Quer avançar?</b> Fale direto com o Paulo: <b>(11) 95113-1232</b></span></div>
+  <div class="bv-divider"></div>
+  <div class="bv-nome-label">Como posso te chamar?</div>
 </div>
 """, unsafe_allow_html=True)
+
+# Campo de nome integrado ao card
+col_a, col_b = st.columns([3,1])
+with col_a:
+    nome_input = st.text_input("nome", placeholder="Digite seu nome...", 
+                                label_visibility="collapsed", key="input_nome",
+                                value=st.session_state.nome_usuario)
+with col_b:
+    if st.button("✓ Confirmar", use_container_width=True):
+        if nome_input.strip():
+            st.session_state.nome_usuario = nome_input.strip()
+            st.session_state.nome_confirmado = True
+            st.rerun()
+
+if nome_input.strip() and not st.session_state.nome_confirmado:
+    st.session_state.nome_usuario = nome_input.strip()
+
+st.markdown("<div style='margin-bottom:1rem'></div>", unsafe_allow_html=True)
 
 # ── SELETOR DE NICHO ──────────────────────────────────────────
 st.markdown("""
