@@ -8,7 +8,7 @@ import os, json, uuid, re
 import gspread
 from google.oauth2.service_account import Credentials
 
-st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered", menu_items={})
+st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered", menu_items={"Get Help": None, "Report a bug": None, "About": None})
 st_autorefresh(interval=600000, limit=None, key="keepalive")
 
 AVATAR_B64 = "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiMxZTJhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGQxNTIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjEwMCIgZmlsbD0idXJsKCNiZykiLz4KICA8cmVjdCB4PSI0OCIgeT0iNDIiIHdpZHRoPSIxMDQiIGhlaWdodD0iODIiIHJ4PSIxOCIgZmlsbD0iIzBmMWYzMCIgc3Ryb2tlPSIjMmE0YTZhIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxyZWN0IHg9IjYwIiB5PSI2MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMTAiIGZpbGw9InJnYmEoNTYsODksMjQ4LDAuMTUpIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGVsbGlwc2UgY3g9Ijc5IiBjeT0iNzYiIHJ4PSI4IiByeT0iNiIgZmlsbD0iIzBlYTVlOSIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjEyMSIgY3k9Ijc2IiByeD0iOCIgcnk9IjYiIGZpbGw9IiMwZWE1ZTkiIG9wYWNpdHk9IjAuOSIvPgogIDxyZWN0IHg9IjY4IiB5PSI5OCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjE2IiByeD0iNSIgZmlsbD0iIzBhMTgyNSIgc3Ryb2tlPSIjMWUzYTU1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSI5NyIgeT0iMTAzIiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iIzM4YmRmOCIvPgogIDxwYXRoIGQ9Ik0zMCAyMDAgUTMyIDE1NSA1MiAxNDAgUTY4IDEzMiAxMDAgMTM0IFExMzIgMTMyIDE0OCAxNDAgUTE2OCAxNTUgMTcwIDIwMFoiIGZpbGw9IiMwZjFmMzAiLz4KPC9zdmc+"
@@ -26,6 +26,14 @@ html,body,[data-testid="stAppViewContainer"]{{background:#141414!important;font-
 footer{{display:none!important}}
 [class*="viewerBadge"]{{display:none!important}}
 [class*="StatusWidget"]{{display:none!important}}
+[class*="stAppDeployButton"]{{display:none!important}}
+[data-testid="stAppDeployButton"]{{display:none!important}}
+div[class*="streamlit-wide"] div[class*="block-container"] + div{{display:none!important}}
+ifr + div{{display:none!important}}
+.st-emotion-cache-h5rgaw{{display:none!important}}
+.st-emotion-cache-1dp5vir{{display:none!important}}
+#stDecoration{{display:none!important}}
+div[data-testid="collapsedControl"]{{display:none!important}}
 footer, footer *{{visibility:hidden!important;display:none!important}}
 [data-testid="stBottom"]{{display:none!important}}
 .st-emotion-cache-164nlkn{{display:none!important}}
@@ -108,6 +116,36 @@ st.markdown("""
     </svg>
   </div>
 </a>
+""", unsafe_allow_html=True)
+
+# ── ESCONDE BADGE STREAMLIT VIA JS ───────────────────────────
+st.markdown("""
+<script>
+(function hideBadge(){
+  var sel = [
+    '[data-testid="stStatusWidget"]',
+    '[data-testid="manage-app-button"]',
+    '.st-emotion-cache-h5rgaw',
+    '.st-emotion-cache-1dp5vir',
+    'iframe[title*="streamlit"]'
+  ];
+  function remove(){
+    sel.forEach(function(s){
+      var el = document.querySelector(s);
+      if(el) el.style.display='none';
+    });
+    // Remove "Hosted with Streamlit" bar at bottom
+    var all = document.querySelectorAll('*');
+    all.forEach(function(el){
+      if(el.innerText && el.innerText.trim()==='Hosted with Streamlit'){
+        el.parentElement.style.display='none';
+      }
+    });
+  }
+  remove();
+  setInterval(remove, 500);
+})();
+</script>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
