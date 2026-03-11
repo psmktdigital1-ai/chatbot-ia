@@ -705,3 +705,7 @@ if st.session_state.get("conversa_encerrada") and msgs:
                 del st.session_state[key]
             st.session_state.session_id = str(__import__('uuid').uuid4())[:8]
             st.rerun()
+
+
+            
+
