@@ -270,8 +270,7 @@ REGRAS:
 1. No PRIMEIRO contato, apresente Paulo de forma calorosa e resumida. Finalize com: "Qual é a sua maior dor hoje? 😊"
 2. Seja consultivo, prático e humano. Ao identificar uma dor, sugira como Paulo resolve.
 3. Ao final de respostas relevantes, inclua CTA natural:
-   📱 WhatsApp: (11) 95113-1232 | 📸 @paulosantos.growthai
-4. Responda sempre em português brasileiro.
+   4. Responda sempre em português brasileiro.
 
 NICHO: Clínicas, consultórios e espaços de saúde.
 EXPERTISE: agendamento automático, lembretes WhatsApp, redução de faltas, pós-consulta automático."""
@@ -286,8 +285,7 @@ Serviços: CRM + Cotação Automática, Chatbot com IA, Dashboard de Vendas, Lea
 REGRAS:
 1. No PRIMEIRO contato, apresente Paulo de forma calorosa. Finalize com: "Qual é a sua maior dor hoje? 😊"
 2. Seja consultivo. Ao identificar dor operacional, mostre como Paulo resolve.
-3. CTA: 📱 WhatsApp: (11) 95113-1232 | 📸 @paulosantos.growthai
-4. Responda em português brasileiro.
+3. CTA: 4. Responda em português brasileiro.
 
 NICHO: Corretoras de seguros.
 EXPERTISE: cotação automática via WhatsApp, CRM de leads, follow-up de renovações, pipeline de vendas."""
@@ -302,8 +300,7 @@ Serviços: Automação de Cobranças, Relatórios Automáticos, Chatbot de Atend
 REGRAS:
 1. No PRIMEIRO contato, apresente Paulo de forma calorosa. Finalize com: "Qual é a sua maior dor hoje? 😊"
 2. Seja consultivo. Ao identificar dor, mostre como Paulo resolve.
-3. CTA: 📱 WhatsApp: (11) 95113-1232 | 📸 @paulosantos.growthai
-4. Responda em português brasileiro.
+3. CTA: 4. Responda em português brasileiro.
 
 NICHO: Escritórios de contabilidade.
 EXPERTISE: cobrança automática de documentos, DRE automático, lembretes de prazos fiscais."""
@@ -318,8 +315,7 @@ Serviços: Automação de Agendamento, Chatbot WhatsApp, Dashboard de Faturament
 REGRAS:
 1. No PRIMEIRO contato, apresente Paulo de forma calorosa. Finalize com: "Qual é a sua maior dor hoje? 😊"
 2. Seja consultivo. Ao identificar dor, mostre como Paulo resolve.
-3. CTA: 📱 WhatsApp: (11) 95113-1232 | 📸 @paulosantos.growthai
-4. Responda em português brasileiro.
+3. CTA: 4. Responda em português brasileiro.
 
 NICHO: Barbearias, salões e estúdios de estética.
 EXPERTISE: agendamento automático, redução de no-show, reativação de clientes inativos."""
@@ -334,8 +330,7 @@ Serviços: Estratégia de Retail Media, Dashboard de Performance, Consultoria E-
 REGRAS:
 1. No PRIMEIRO contato, apresente Paulo de forma calorosa. Finalize com: "Qual é a sua maior dor hoje? 😊"
 2. Seja consultivo. Ao identificar dor, mostre como Paulo resolve.
-3. CTA: 📱 WhatsApp: (11) 95113-1232 | 📸 @paulosantos.growthai
-4. Responda em português brasileiro.
+3. CTA: 4. Responda em português brasileiro.
 
 NICHO: E-commerce e lojas virtuais.
 EXPERTISE: Amazon Ads, ML Ads, Shopee, análise de SKU e ROAS, automação de campanhas."""
@@ -346,7 +341,7 @@ EXPERTISE: Amazon Ads, ML Ads, Shopee, análise de SKU e ROAS, automação de ca
 Responda qualquer pergunta: tecnologia, negócios, IA, automação, ciência, curiosidades e mais.
 Seja útil, claro e direto. Responda em português brasileiro.
 Quando relevante, mencione que Paulo Santos pode ajudar com automação e IA para negócios.
-📱 WhatsApp: (11) 95113-1232 | 📸 @paulosantos.growthai"""
+ | 📸 @paulosantos.growthai"""
     },
 }
 
@@ -507,21 +502,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Campo de nome integrado ao card
-col_a, col_b = st.columns([3,1])
-with col_a:
-    nome_input = st.text_input("nome", placeholder="Digite seu nome...", 
-                                label_visibility="collapsed", key="input_nome",
-                                value=st.session_state.nome_usuario)
-with col_b:
-    if st.button("✓ Confirmar", use_container_width=True):
-        if nome_input.strip():
-            st.session_state.nome_usuario = nome_input.strip()
-            st.session_state.nome_confirmado = True
-            st.rerun()
-
-if nome_input.strip() and not st.session_state.nome_confirmado:
+# Campo de nome — salva automaticamente ao digitar
+nome_input = st.text_input("nome", placeholder="Ex: João Silva...",
+                            label_visibility="collapsed", key="input_nome",
+                            value=st.session_state.nome_usuario)
+if nome_input.strip():
     st.session_state.nome_usuario = nome_input.strip()
+    st.session_state.nome_confirmado = True
 
 st.markdown("<div style='margin-bottom:1rem'></div>", unsafe_allow_html=True)
 
@@ -670,3 +657,4 @@ if entrada:
             })
             salvar_lead(st.session_state.dados_lead)
             st.session_state.lead_salvo = True
+            # sem notificação visual
