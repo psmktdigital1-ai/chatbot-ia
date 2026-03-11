@@ -670,4 +670,34 @@ if entrada:
             })
             salvar_lead(st.session_state.dados_lead)
             st.session_state.lead_salvo = True
-            # sem notificação visual
+
+    # ── Detecta encerramento da conversa ──
+    palavras_encerramento = ["tchau", "até mais", "ate mais", "até logo", "ate logo",
+                             "obrigado", "obrigada", "valeu", "encerrar", "finalizar",
+                             "foi ótimo", "foi otimo", "encerrando", "até", "xau"]
+    if any(p in entrada.lower() for p in palavras_encerramento):
+        st.session_state.conversa_encerrada = True
+
+# ── BOTÃO DE ENCERRAR se conversa terminou ───────────────────
+if st.session_state.get("conversa_encerrada") and msgs:
+    st.markdown("""
+<style>
+.encerrar-box{background:#191e2b;border:1px solid #252d3d;border-radius:14px;padding:1.2rem 1.5rem;margin-top:1rem;text-align:center;position:relative;overflow:hidden}
+.encerrar-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8)}
+.encerrar-titulo{font-size:0.95rem;color:#d4d0cb;margin-bottom:0.3rem;font-weight:600}
+.encerrar-sub{font-size:0.83rem;color:#666;margin-bottom:1rem}
+</style>
+<div class="encerrar-box">
+  <div class="encerrar-titulo">✅ Conversa encerrada</div>
+  <div class="encerrar-sub">Obrigado pelo contato! Clique abaixo para iniciar uma nova conversa.</div>
+</div>
+""", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        if st.button("🔄 Nova conversa", type="primary", use_container_width=True):
+            # Limpa tudo da sessão mantendo só o session_id
+            sid = st.session_state.session_id
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.session_state.session_id = str(__import__('uuid').uuid4())[:8]
+            st.rerun()
