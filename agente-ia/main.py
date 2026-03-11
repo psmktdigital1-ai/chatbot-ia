@@ -102,31 +102,35 @@ if not GEMINI_API_KEY and not GROQ_API_KEY:
 # ══════════════════════════════════════════════════════════════
 def get_sheet():
     try:
-        if not GOOGLE_CREDS or not SHEET_ID:
+        if not GOOGLE_CREDS:
+            st.sidebar.error("❌ GOOGLE_CREDS não configurado")
+            return None
+        if not SHEET_ID:
+            st.sidebar.error("❌ SHEET_ID não configurado")
             return None
         creds_dict = json.loads(GOOGLE_CREDS)
         scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
         gc = gspread.authorize(creds)
         sh = gc.open_by_key(SHEET_ID)
-        # Garante aba "Leads"
         try:
             ws = sh.worksheet("Leads")
         except Exception:
             ws = sh.add_worksheet("Leads", rows=2000, cols=12)
-        # Garante cabeçalho correto
         cabecalho = ["Data/Hora","Sessão","Nicho","Cidade/Estado","Intenção","Score","Estágio","Primeira Pergunta","Total Msgs","Tempo na Sessão (min)"]
         primeira_linha = ws.row_values(1) if ws.row_count > 0 else []
         if primeira_linha != cabecalho:
             ws.clear()
             ws.insert_row(cabecalho, 1)
         return ws
-    except Exception:
+    except Exception as e:
+        st.sidebar.error(f"❌ Sheets erro: {e}")
         return None
 
 def salvar_lead(dados: dict):
     ws = get_sheet()
     if not ws:
+        st.sidebar.error("❌ Não conectou ao Sheets")
         return
     try:
         ws.append_row([
@@ -141,8 +145,9 @@ def salvar_lead(dados: dict):
             dados.get("total_msgs", 0),
             dados.get("tempo_min", 0),
         ])
-    except Exception:
-        pass
+        st.sidebar.success("✅ Lead salvo no Sheets!")
+    except Exception as e:
+        st.sidebar.error(f"❌ Erro ao salvar: {e}")
 
 def carregar_leads():
     ws = get_sheet()
