@@ -117,7 +117,7 @@ def get_sheet():
             ws = sh.worksheet("Leads")
         except Exception:
             ws = sh.add_worksheet("Leads", rows=2000, cols=12)
-        cabecalho = ["Data/Hora","Sessão","Nicho","Cidade/Estado","Intenção","Score","Estágio","Primeira Pergunta","Total Msgs","Tempo na Sessão (min)"]
+        cabecalho = ["Data/Hora","Sessão","Nome","Nicho","Cidade/Estado","Intenção","Score","Estágio","Primeira Pergunta","Total Msgs","Tempo na Sessão (min)"]
         primeira_linha = ws.row_values(1) if ws.row_count > 0 else []
         if primeira_linha != cabecalho:
             ws.clear()
@@ -136,6 +136,7 @@ def salvar_lead(dados: dict):
         ws.append_row([
             dados.get("datetime", ""),
             dados.get("session_id", ""),
+            dados.get("nome", ""),
             dados.get("nicho", ""),
             dados.get("cidade_estado", "Não informado"),
             dados.get("intencao", ""),
@@ -225,6 +226,10 @@ if "dados_lead" not in st.session_state:
     st.session_state.dados_lead = {}
 if "admin_ok" not in st.session_state:
     st.session_state.admin_ok = False
+if "nome_usuario" not in st.session_state:
+    st.session_state.nome_usuario = ""
+if "nome_confirmado" not in st.session_state:
+    st.session_state.nome_confirmado = False
 
 # ══════════════════════════════════════════════════════════════
 # NICHOS
@@ -420,6 +425,7 @@ if is_admin:
     else:
         for lead in reversed(leads_f):
             nicho_l   = lead.get("Nicho", "—")
+            nome_l    = lead.get("Nome", "")
             cidade    = lead.get("Cidade/Estado", "—")
             intencao  = lead.get("Intenção", "—")
             score     = lead.get("Score", "—")
@@ -443,7 +449,7 @@ if is_admin:
     </div>
     <span style="font-size:0.75rem;color:#555">{dt} · {msgs_n} msgs · {tempo}min</span>
   </div>
-  <div style="color:#d4d0cb;font-size:0.9rem;margin-bottom:4px"><b>Intenção:</b> {intencao}</div>
+  <div style="color:#d4d0cb;font-size:0.9rem;margin-bottom:4px">{"👤 <b>" + nome_l + "</b> · " if nome_l else ""}<b>Intenção:</b> {intencao}</div>
   <div style="color:#888;font-size:0.82rem"><b>📍 {cidade}</b> · "{perg}..."</div>
 </div>""", unsafe_allow_html=True)
 
@@ -457,6 +463,52 @@ if is_admin:
 # ══════════════════════════════════════════════════════════════
 # PÁGINA: CHAT PRINCIPAL
 # ══════════════════════════════════════════════════════════════
+
+# ── CAPTURA DE NOME ──────────────────────────────────────────
+if not st.session_state.nome_confirmado:
+    st.markdown("""
+<style>
+.nome-card{background:linear-gradient(135deg,#191e2b 0%,#141820 100%);border:1px solid #252d3d;border-radius:16px;padding:2rem 2rem 1.8rem;margin-bottom:1.5rem;position:relative;overflow:hidden;text-align:center}
+.nome-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8,#0369a1)}
+.nome-titulo{font-family:'Instrument Serif',serif;font-size:1.5rem;color:#f0ede8;margin-bottom:0.5rem}
+.nome-sub{font-size:0.92rem;color:#888;line-height:1.7;margin-bottom:1.2rem}
+</style>
+<div class="nome-card">
+  <div class="nome-titulo">👋 Olá! Bem-vindo ao Paulo AI</div>
+  <div class="nome-sub">Antes de começar, como posso te chamar?</div>
+</div>
+""", unsafe_allow_html=True)
+
+    col_a, col_b, col_c = st.columns([1,3,1])
+    with col_b:
+        nome_input = st.text_input("", placeholder="Digite seu nome aqui...", label_visibility="collapsed", key="input_nome")
+        if st.button("Começar conversa →", type="primary", use_container_width=True):
+            if nome_input.strip():
+                st.session_state.nome_usuario = nome_input.strip()
+                st.session_state.nome_confirmado = True
+                st.rerun()
+            else:
+                st.warning("Por favor, digite seu nome para continuar.")
+    st.stop()
+
+# ── CARD DE BOAS-VINDAS ───────────────────────────────────────
+nome = st.session_state.nome_usuario
+st.markdown(f"""
+<style>
+.bv-card{{background:#191e2b;border:1px solid #252d3d;border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1.4rem;position:relative;overflow:hidden}}
+.bv-card::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0369a1,#38bdf8)}}
+.bv-titulo{{font-size:1rem;font-weight:600;color:#f0ede8;margin-bottom:0.5rem}}
+.bv-item{{display:flex;align-items:flex-start;gap:10px;margin-bottom:0.4rem;font-size:0.87rem;color:#888;line-height:1.5}}
+.bv-item b{{color:#b0ada8}}
+</style>
+<div class="bv-card">
+  <div class="bv-titulo">Olá, {nome}! 👋 Veja o que você pode fazer aqui:</div>
+  <div class="bv-item">💬 <span><b>Converse naturalmente</b> — me conte sobre o seu negócio e suas dores</span></div>
+  <div class="bv-item">🔍 <span><b>Tire dúvidas</b> sobre automação, chatbots, IA e tecnologia com acesso à internet</span></div>
+  <div class="bv-item">🎯 <span><b>Selecione seu segmento</b> abaixo para uma conversa mais personalizada</span></div>
+  <div class="bv-item">📱 <span><b>Se quiser avançar</b>, fale direto com o Paulo: <b>(11) 95113-1232</b></span></div>
+</div>
+""", unsafe_allow_html=True)
 
 # ── SELETOR DE NICHO ──────────────────────────────────────────
 st.markdown("""
@@ -543,6 +595,7 @@ if entrada:
         st.session_state.dados_lead["datetime"] = datetime.now().strftime("%d/%m/%Y %H:%M")
         st.session_state.dados_lead["session_id"] = st.session_state.session_id
         st.session_state.dados_lead["nicho"] = nicho
+        st.session_state.dados_lead["nome"] = st.session_state.nome_usuario
 
     st.chat_message("user").write(entrada)
     msgs.append({"role": "user", "content": entrada})
@@ -557,7 +610,7 @@ if entrada:
                 data = datetime.now().strftime("%d/%m/%Y")
                 contexto = f"[INTERNET - {data}]\n{resultado}\n[FIM]\n\n"
 
-    system = config["prompt"] + f"\nHoje: {datetime.now().strftime('%d/%m/%Y')}"
+    system = config["prompt"] + f"\nHoje: {datetime.now().strftime('%d/%m/%Y')}\nNome do usuário: {st.session_state.nome_usuario} — use o nome dele naturalmente na conversa."
     msg_completa = f"{contexto}Pergunta: {entrada}"
 
     resposta = None
