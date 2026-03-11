@@ -167,9 +167,8 @@ def salvar_lead(dados: dict):
             dados.get("total_msgs", 0),
             dados.get("tempo_min", 0),
         ])
-        st.sidebar.success("✅ Lead salvo no Sheets!")
     except Exception as e:
-        st.sidebar.error(f"❌ Erro ao salvar: {e}")
+        pass
 
 def carregar_leads():
     ws = get_sheet()
@@ -340,8 +339,7 @@ EXPERTISE: Amazon Ads, ML Ads, Shopee, análise de SKU e ROAS, automação de ca
         "prompt": """Você é Paulo AI, assistente inteligente geral com acesso à internet em tempo real.
 Responda qualquer pergunta: tecnologia, negócios, IA, automação, ciência, curiosidades e mais.
 Seja útil, claro e direto. Responda em português brasileiro.
-Quando relevante, mencione que Paulo Santos pode ajudar com automação e IA para negócios.
- | 📸 @paulosantos.growthai"""
+Quando relevante, mencione que Paulo Santos pode ajudar com automação e IA para negócios."""
     },
 }
 
@@ -496,7 +494,7 @@ st.markdown("""
   <div class="bv-item">💬 <span><b>Converse naturalmente</b> sobre o seu negócio, dores e desafios</span></div>
   <div class="bv-item">🔍 <span><b>Tire dúvidas</b> sobre automação, chatbots e IA com acesso à internet em tempo real</span></div>
   <div class="bv-item">🎯 <span><b>Selecione seu segmento</b> abaixo para uma conversa especializada no seu nicho</span></div>
-  <div class="bv-item">📱 <span><b>Quer avançar?</b> Fale direto com o Paulo: <b>(11) 95113-1232</b></span></div>
+  <div class="bv-item">📸 <span><b>Quer avançar?</b> Siga o Paulo no Instagram: <b>@paulosantos.growthai</b></span></div>
   <div class="bv-divider"></div>
   <div class="bv-nome-label">Como posso te chamar?</div>
 </div>
@@ -509,6 +507,8 @@ nome_input = st.text_input("nome", placeholder="Ex: João Silva...",
 if nome_input.strip():
     st.session_state.nome_usuario = nome_input.strip()
     st.session_state.nome_confirmado = True
+    if "saudacao_feita" not in st.session_state:
+        st.session_state.saudacao_feita = False
 
 st.markdown("<div style='margin-bottom:1rem'></div>", unsafe_allow_html=True)
 
@@ -538,6 +538,19 @@ hist_gem = st.session_state.hist_gemini[nicho]
 # Exibe histórico
 for msg in msgs:
     st.chat_message(msg["role"]).write(msg["content"])
+
+# ── SAUDAÇÃO AUTOMÁTICA ao digitar o nome ────────────────────
+nome = st.session_state.nome_usuario
+if nome and not msgs and "saudacao_enviada" not in st.session_state:
+    saudacao = (
+        f"Olá, **{nome}**! 👋 Que bom ter você aqui!\n\n"
+        f"Sou o assistente virtual do **Paulo Santos**, especialista em **Automação com IA** "
+        f"para negócios como o seu.\n\n"
+        f"Selecione o seu segmento acima e me conte sobre o seu negócio — "
+        f"posso te ajudar a identificar onde a automação pode economizar tempo e gerar mais resultados. 🚀"
+    )
+    st.chat_message("assistant").write(saudacao)
+    st.session_state.saudacao_enviada = True
 
 # ── BUSCA INTERNET ────────────────────────────────────────────
 tavily = TavilyClient(api_key=TAVILY_API_KEY)
