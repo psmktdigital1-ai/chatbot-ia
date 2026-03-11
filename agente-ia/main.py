@@ -26,6 +26,11 @@ html,body,[data-testid="stAppViewContainer"]{{background:#141414!important;font-
 footer{{display:none!important}}
 [class*="viewerBadge"]{{display:none!important}}
 [class*="StatusWidget"]{{display:none!important}}
+footer, footer *{{visibility:hidden!important;display:none!important}}
+[data-testid="stBottom"]{{display:none!important}}
+.st-emotion-cache-164nlkn{{display:none!important}}
+.st-emotion-cache-1dp5vir{{display:none!important}}
+section[data-testid="stSidebar"] + div > div > div:last-child{{display:none!important}}
 .block-container{{padding:0 1.5rem 5rem!important;max-width:740px!important}}
 .header{{padding:3.5rem 0 2rem;display:flex;flex-direction:column;align-items:center}}
 .avatar-circle{{width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid #1e3a55;margin-bottom:1.2rem;box-shadow:0 0 0 4px rgba(56,189,248,0.08),0 8px 36px rgba(0,0,0,0.65)}}
@@ -705,7 +710,3 @@ if st.session_state.get("conversa_encerrada") and msgs:
                 del st.session_state[key]
             st.session_state.session_id = str(__import__('uuid').uuid4())[:8]
             st.rerun()
-
-
-            
-
