@@ -100,7 +100,6 @@ if not GEMINI_API_KEY and not GROQ_API_KEY:
 # ══════════════════════════════════════════════════════════════
 # GOOGLE SHEETS
 # ══════════════════════════════════════════════════════════════
-@st.cache_resource
 def get_sheet():
     try:
         if not GOOGLE_CREDS or not SHEET_ID:
@@ -115,9 +114,11 @@ def get_sheet():
             ws = sh.worksheet("Leads")
         except Exception:
             ws = sh.add_worksheet("Leads", rows=2000, cols=12)
-        # Garante cabeçalho
+        # Garante cabeçalho correto
         cabecalho = ["Data/Hora","Sessão","Nicho","Cidade/Estado","Intenção","Score","Estágio","Primeira Pergunta","Total Msgs","Tempo na Sessão (min)"]
-        if ws.row_count == 0 or ws.cell(1,1).value != "Data/Hora":
+        primeira_linha = ws.row_values(1) if ws.row_count > 0 else []
+        if primeira_linha != cabecalho:
+            ws.clear()
             ws.insert_row(cabecalho, 1)
         return ws
     except Exception:
