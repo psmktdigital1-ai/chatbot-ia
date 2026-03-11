@@ -8,7 +8,7 @@ import os, json, uuid, re
 import gspread
 from google.oauth2.service_account import Credentials
 
-st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered")
+st.set_page_config(page_title="Paulo AI", page_icon="✦", layout="centered", menu_items={})
 st_autorefresh(interval=600000, limit=None, key="keepalive")
 
 AVATAR_B64 = "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiMxZTJhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGQxNTIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjEwMCIgZmlsbD0idXJsKCNiZykiLz4KICA8cmVjdCB4PSI0OCIgeT0iNDIiIHdpZHRoPSIxMDQiIGhlaWdodD0iODIiIHJ4PSIxOCIgZmlsbD0iIzBmMWYzMCIgc3Ryb2tlPSIjMmE0YTZhIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxyZWN0IHg9IjYwIiB5PSI2MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMTAiIGZpbGw9InJnYmEoNTYsODksMjQ4LDAuMTUpIiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGVsbGlwc2UgY3g9Ijc5IiBjeT0iNzYiIHJ4PSI4IiByeT0iNiIgZmlsbD0iIzBlYTVlOSIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjEyMSIgY3k9Ijc2IiByeD0iOCIgcnk9IjYiIGZpbGw9IiMwZWE1ZTkiIG9wYWNpdHk9IjAuOSIvPgogIDxyZWN0IHg9IjY4IiB5PSI5OCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjE2IiByeD0iNSIgZmlsbD0iIzBhMTgyNSIgc3Ryb2tlPSIjMWUzYTU1IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSI5NyIgeT0iMTAzIiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iIzM4YmRmOCIvPgogIDxwYXRoIGQ9Ik0zMCAyMDAgUTMyIDE1NSA1MiAxNDAgUTY4IDEzMiAxMDAgMTM0IFExMzIgMTMyIDE0OCAxNDAgUTE2OCAxNTUgMTcwIDIwMFoiIGZpbGw9IiMwZjFmMzAiLz4KPC9zdmc+"
@@ -21,7 +21,11 @@ st.markdown(f"""
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 html,body,[data-testid="stAppViewContainer"]{{background:#141414!important;font-family:'Inter',sans-serif;color:#ffffff}}
-[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none!important}}
+[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],[data-testid="stStatusWidget"],[data-testid="manage-app-button"]{{display:none!important}}
+#MainMenu{{display:none!important}}
+footer{{display:none!important}}
+[class*="viewerBadge"]{{display:none!important}}
+[class*="StatusWidget"]{{display:none!important}}
 .block-container{{padding:0 1.5rem 5rem!important;max-width:740px!important}}
 .header{{padding:3.5rem 0 2rem;display:flex;flex-direction:column;align-items:center}}
 .avatar-circle{{width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid #1e3a55;margin-bottom:1.2rem;box-shadow:0 0 0 4px rgba(56,189,248,0.08),0 8px 36px rgba(0,0,0,0.65)}}
