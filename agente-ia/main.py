@@ -60,8 +60,8 @@ footer, footer *{{visibility:hidden!important;display:none!important}}
 [data-testid="stChatMessage"] p,[data-testid="stChatMessage"] li,[data-testid="stChatMessage"] span{{color:#ffffff!important;font-size:1.15rem!important;line-height:1.7!important}}
 [data-testid="stChatMessage"] a{{color:#38bdf8!important;font-size:1.15rem!important}}
 [data-testid="stChatInput"]{{background:#ffffff!important;border:1px solid #dddddd!important;border-radius:14px!important}}
-[data-testid="stChatInput"] textarea{{color:#111111!important;font-size:1.2rem!important;line-height:1.6!important}}
-[data-testid="stChatInput"] textarea::placeholder{{color:#888!important;font-size:1.2rem!important}}
+[data-testid="stChatInput"] textarea{{color:#ffffff!important;font-size:1.2rem!important;line-height:1.6!important;caret-color:#ffffff!important}}
+[data-testid="stChatInput"] textarea::placeholder{{color:#aaaaaa!important;font-size:1.2rem!important}}
 [data-testid="stChatInputSubmitButton"] button{{background:#0ea5e9!important;border-radius:9px!important;border:none!important}}
 ::-webkit-scrollbar{{width:4px}}::-webkit-scrollbar-thumb{{background:#333;border-radius:999px}}
 
