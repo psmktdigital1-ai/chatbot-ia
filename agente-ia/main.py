@@ -50,12 +50,12 @@ footer, footer *{{visibility:hidden!important;display:none!important}}
 @keyframes blink{{0%,100%{{opacity:1}}50%{{opacity:0.4}}}}
 .nicho-badge{{display:inline-flex;align-items:center;gap:6px;margin-top:0.5rem;font-size:0.78rem;color:#38bdf8;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);padding:4px 12px;border-radius:100px}}
 .sep{{width:36px;height:1px;background:#2e2e2e;margin:1.8rem auto 1.5rem}}
-[data-testid="stChatMessage"]{{background:transparent!important;border:none!important;padding:0.2rem 0!important}}
-[data-testid="stChatMessage"] p,[data-testid="stChatMessage"] li,[data-testid="stChatMessage"] span{{color:#ffffff!important}}
-[data-testid="stChatMessage"] a{{color:#38bdf8!important}}
+[data-testid="stChatMessage"]{{background:transparent!important;border:none!important;padding:0.4rem 0!important}}
+[data-testid="stChatMessage"] p,[data-testid="stChatMessage"] li,[data-testid="stChatMessage"] span{{color:#ffffff!important;font-size:1.15rem!important;line-height:1.7!important}}
+[data-testid="stChatMessage"] a{{color:#38bdf8!important;font-size:1.15rem!important}}
 [data-testid="stChatInput"]{{background:#ffffff!important;border:1px solid #dddddd!important;border-radius:14px!important}}
-[data-testid="stChatInput"] textarea{{color:#111111!important;font-size:1.05rem!important}}
-[data-testid="stChatInput"] textarea::placeholder{{color:#888!important}}
+[data-testid="stChatInput"] textarea{{color:#111111!important;font-size:1.2rem!important;line-height:1.6!important}}
+[data-testid="stChatInput"] textarea::placeholder{{color:#888!important;font-size:1.2rem!important}}
 [data-testid="stChatInputSubmitButton"] button{{background:#0ea5e9!important;border-radius:9px!important;border:none!important}}
 ::-webkit-scrollbar{{width:4px}}::-webkit-scrollbar-thumb{{background:#333;border-radius:999px}}
 
