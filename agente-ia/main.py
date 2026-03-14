@@ -37,8 +37,9 @@ div[data-testid="collapsedControl"]{{display:none!important}}
 footer, footer *{{visibility:hidden!important;display:none!important}}
 .st-emotion-cache-164nlkn{{display:none!important}}
 .st-emotion-cache-1dp5vir{{display:none!important}}
-section[data-testid="stSidebar"] + div > div > div:last-child{{display:none!important}}
 .block-container{{padding:0 1.5rem 5rem!important;max-width:740px!important}}
+[data-testid="stBottom"]{{display:block!important;visibility:visible!important}}
+@media (max-width:768px){{[data-testid="stBottom"]{{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:9998!important;background:#141414!important;padding:0.5rem 1rem 1rem!important;border-top:1px solid #2a2a2a!important}}.block-container{{padding-bottom:6rem!important}}}}
 .header{{padding:3.5rem 0 2rem;display:flex;flex-direction:column;align-items:center}}
 .avatar-circle{{width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid #1e3a55;margin-bottom:1.2rem;box-shadow:0 0 0 4px rgba(56,189,248,0.08),0 8px 36px rgba(0,0,0,0.65)}}
 .avatar-circle img{{width:100%;height:100%;object-fit:cover;display:block}}
@@ -57,7 +58,6 @@ section[data-testid="stSidebar"] + div > div > div:last-child{{display:none!impo
 [data-testid="stChatInput"] textarea::placeholder{{color:#888!important}}
 [data-testid="stChatInputSubmitButton"] button{{background:#0ea5e9!important;border-radius:9px!important;border:none!important}}
 ::-webkit-scrollbar{{width:4px}}::-webkit-scrollbar-thumb{{background:#333;border-radius:999px}}
-@media (max-width:768px){{[data-testid="stBottom"]{{display:block!important;visibility:visible!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:9998!important;background:#141414!important;padding:0.5rem 1rem 1rem!important;border-top:1px solid #2a2a2a!important}}.block-container{{padding-bottom:6rem!important}}}}
 
 /* ── TABS ── */
 [data-testid="stTabs"] [role="tablist"]{{background:#1a1a1a!important;border-radius:10px!important;padding:4px!important;border:1px solid #252525!important}}
