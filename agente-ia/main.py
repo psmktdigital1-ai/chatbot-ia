@@ -35,7 +35,6 @@ ifr + div{{display:none!important}}
 #stDecoration{{display:none!important}}
 div[data-testid="collapsedControl"]{{display:none!important}}
 footer, footer *{{visibility:hidden!important;display:none!important}}
-[data-testid="stBottom"]{{display:none!important}}
 .st-emotion-cache-164nlkn{{display:none!important}}
 .st-emotion-cache-1dp5vir{{display:none!important}}
 section[data-testid="stSidebar"] + div > div > div:last-child{{display:none!important}}
@@ -58,6 +57,7 @@ section[data-testid="stSidebar"] + div > div > div:last-child{{display:none!impo
 [data-testid="stChatInput"] textarea::placeholder{{color:#888!important}}
 [data-testid="stChatInputSubmitButton"] button{{background:#0ea5e9!important;border-radius:9px!important;border:none!important}}
 ::-webkit-scrollbar{{width:4px}}::-webkit-scrollbar-thumb{{background:#333;border-radius:999px}}
+@media (max-width:768px){{[data-testid="stBottom"]{{display:block!important;visibility:visible!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:9998!important;background:#141414!important;padding:0.5rem 1rem 1rem!important;border-top:1px solid #2a2a2a!important}}.block-container{{padding-bottom:6rem!important}}}}
 
 /* ── TABS ── */
 [data-testid="stTabs"] [role="tablist"]{{background:#1a1a1a!important;border-radius:10px!important;padding:4px!important;border:1px solid #252525!important}}
