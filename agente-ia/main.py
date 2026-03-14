@@ -39,7 +39,7 @@ footer, footer *{{visibility:hidden!important;display:none!important}}
 .st-emotion-cache-1dp5vir{{display:none!important}}
 .block-container{{padding:0 1.5rem 5rem!important;max-width:740px!important}}
 [data-testid="stBottom"]{{display:block!important;visibility:visible!important}}
-@media (max-width:768px){{[data-testid="stBottom"]{{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:9998!important;background:#141414!important;padding:0.5rem 1rem 1rem!important;border-top:1px solid #2a2a2a!important}}.block-container{{padding-bottom:6rem!important}}}}
+@media (max-width:768px){{[data-testid="stBottom"]{{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:9998!important;background:#141414!important;padding:0.5rem 4.5rem 1rem 1rem!important;border-top:1px solid #2a2a2a!important}}.block-container{{padding-bottom:6rem!important}}}}
 .header{{padding:3.5rem 0 2rem;display:flex;flex-direction:column;align-items:center}}
 .avatar-circle{{width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid #1e3a55;margin-bottom:1.2rem;box-shadow:0 0 0 4px rgba(56,189,248,0.08),0 8px 36px rgba(0,0,0,0.65)}}
 .avatar-circle img{{width:100%;height:100%;object-fit:cover;display:block}}
@@ -100,7 +100,7 @@ footer, footer *{{visibility:hidden!important;display:none!important}}
 # ── BOTÃO FLUTUANTE WHATSAPP ──────────────────────────────────
 st.markdown("""
 <style>
-.whatsapp-float{position:fixed;bottom:28px;right:28px;z-index:9999;display:flex;align-items:center;gap:10px;text-decoration:none;animation:fadeInUp 0.6s ease}
+.whatsapp-float{position:fixed;bottom:90px;right:18px;z-index:9997;display:flex;align-items:center;gap:10px;text-decoration:none;animation:fadeInUp 0.6s ease}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .whatsapp-bubble{background:#25d366;border-radius:50%;width:58px;height:58px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,0.45);transition:transform 0.2s,box-shadow 0.2s}
 .whatsapp-bubble:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(37,211,102,0.6)}
